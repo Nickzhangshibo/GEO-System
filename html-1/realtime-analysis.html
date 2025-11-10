@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>实时品牌关联分析 V3</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei', sans-serif;
+            background: radial-gradient(circle at top right, #a77bff 0%, #5c59ff 50%, #28195f 100%);
+            min-height: 100vh;
+            padding: 30px;
+            color: #fff;
+        }
+        .layout {
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            gap: 20px;
+        }
+        .panel {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(12px);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+        }
+        .left-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        h1 {
+            font-size: 26px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        h1 span {
+            background: rgba(255,255,255,0.2);
+            padding: 6px 12px;
+            border-radius: 999px;
+            font-size: 14px;
+        }
+        label {
+            font-size: 13px;
+            color: rgba(255,255,255,0.8);
+        }
+        input, select {
+            width: 100%;
+            padding: 12px 14px;
+            border-radius: 12px;
+            border: none;
+            margin-top: 6px;
+            font-size: 14px;
+            background: rgba(255,255,255,0.85);
+            color: #333;
+        }
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+        .btn {
+            width: 100%;
+            padding: 12px;
+            border-radius: 12px;
+            border: none;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #fbc2eb 0%, #a18cd1 100%);
+            color: #38145e;
+        }
+        .btn-stop {
+            background: rgba(255,255,255,0.15);
+            color: #ffd7d7;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        }
+        .tips {
+            background: rgba(255,255,255,0.08);
+            border-radius: 12px;
+            padding: 16px;
+            font-size: 13px;
+            line-height: 1.6;
+            color: rgba(255,255,255,0.8);
+        }
+        .right-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .gradient-bar {
+            background: rgba(255,255,255,0.15);
+            border-radius: 14px;
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .progress-container {
+            width: 70%;
+            height: 18px;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.15);
+            overflow: hidden;
+            position: relative;
+        }
+        .progress-fill {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, #fbc2eb 0%, #a18cd1 100%);
+        }
+        .timeline {
+            background: rgba(255,255,255,0.12);
+            border-radius: 16px;
+            padding: 20px;
+            max-height: 220px;
+            overflow-y: auto;
+        }
+        .timeline-item {
+            display: flex;
+            gap: 14px;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+        .timeline-item:last-child {
+            border-bottom: none;
+        }
+        .timeline-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255,255,255,0.18);
+            font-size: 18px;
+        }
+        .timeline-content {
+            flex: 1;
+        }
+        .timeline-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        .timeline-time {
+            font-size: 12px;
+            color: rgba(255,255,255,0.6);
+        }
+        .question-card {
+            background: rgba(255,255,255,0.12);
+            border-radius: 16px;
+            padding: 18px;
+            margin-bottom: 14px;
+        }
+        .question-card h3 {
+            font-size: 15px;
+            margin-bottom: 12px;
+        }
+        .answer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+            gap: 12px;
+        }
+        .answer-item {
+            background: rgba(255,255,255,0.1);
+            border-radius: 12px;
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .answer-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 13px;
+            color: rgba(255,255,255,0.85);
+        }
+        .answer-rank {
+            background: rgba(255,255,255,0.2);
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 12px;
+            color: #fff;
+        }
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+            margin-top: 16px;
+        }
+        .summary-card {
+            background: rgba(255,255,255,0.12);
+            border-radius: 14px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .summary-title {
+            font-size: 13px;
+            color: rgba(255,255,255,0.7);
+        }
+        .summary-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #fff;
+        }
+        .scrollable {
+            max-height: 320px;
+            overflow-y: auto;
+            padding-right: 6px;
+        }
+    </style>
+</head>
+<body>
+    <h1>实时品牌关联分析 V3 <span>实验能力中</span></h1>
+    <div class="layout">
+        <div class="left-panel">
+            <div class="panel">
+                <div class="input-group">
+                    <div>
+                        <label>关键词</label>
+                        <input type="text" value="上海比较好的高端养老社区有哪些">
+                    </div>
+                    <div>
+                        <label>品牌标签</label>
+                        <input type="text" value="上海高端老人">
+                    </div>
+                    <div>
+                        <label>提问数量</label>
+                        <input type="number" value="5">
+                    </div>
+                    <div>
+                        <label>推荐模型数</label>
+                        <input type="number" value="5">
+                    </div>
+                </div>
+                <div style="margin-top: 20px; display: flex; flex-direction: column; gap: 12px;">
+                    <button class="btn btn-primary">开始实时分析</button>
+                    <button class="btn btn-stop">停止分析</button>
+                </div>
+            </div>
+            <div class="panel tips">
+                <strong>温馨提示：</strong>
+                <ul style="margin: 10px 0 0 18px;">
+                    <li>V3版本支持实时同步分析进度</li>
+                    <li>推荐在桌面端使用，体验更佳</li>
+                    <li>分析过程可多窗口查看详情</li>
+                </ul>
+            </div>
+        </div>
+        <div class="right-panel">
+            <div class="panel">
+                <div class="gradient-bar">
+                    <div>
+                        <h2 style="font-size: 18px; color: rgba(255,255,255,0.95); margin-bottom: 6px;">分析进度</h2>
+                        <div style="font-size: 12px; color: rgba(255,255,255,0.7);">正在处理：上海比较好的高端养老社区有哪些</div>
+                    </div>
+                    <div class="progress-container">
+                        <div class="progress-fill"></div>
+                    </div>
+                    <div style="font-weight: 700;">100%</div>
+                </div>
+            </div>
+            <div class="panel">
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+                    <span style="font-size: 18px;">⚙️</span>
+                    <h2 style="font-size: 18px; color: rgba(255,255,255,0.95);">实时步骤</h2>
+                </div>
+                <div class="timeline scrollable">
+                    <div class="timeline-item">
+                        <div class="timeline-icon">✔</div>
+                        <div class="timeline-content">
+                            <div class="timeline-title">正在处理第 1 个问题</div>
+                            <div class="timeline-time">2025-09-05 16:52</div>
+                            <div style="margin-top: 6px; font-size: 13px; color: rgba(255,255,255,0.8);">
+                                模型 deepseek-v3 开始联邦分析，预计 8 秒内完成输出。
+                            </div>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-icon">⏳</div>
+                        <div class="timeline-content">
+                            <div class="timeline-title">生成回答中（2/5）</div>
+                            <div class="timeline-time">2025-09-05 16:53</div>
+                            <div style="margin-top: 6px; font-size: 13px; color: rgba(255,255,255,0.8);">
+                                GPT-5 正在整合上海高端养老社区商业模式资料。
+                            </div>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-icon">✨</div>
+                        <div class="timeline-content">
+                            <div class="timeline-title">完成分析问题 2/5</div>
+                            <div class="timeline-time">2025-09-05 16:55</div>
+                            <div style="margin-top: 6px; font-size: 13px; color: rgba(255,255,255,0.8);">
+                                Gemini 2.5 Pro 补充了医疗服务指标对比信息。
+                            </div>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-icon">🎯</div>
+                        <div class="timeline-content">
+                            <div class="timeline-title">分析完成 5/5 个问题</div>
+                            <div class="timeline-time">2025-09-05 16:58</div>
+                            <div style="margin-top: 6px; font-size: 13px; color: rgba(255,255,255,0.8);">
+                                所有模型任务完成，正在汇总结构化结果。
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="panel">
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 16px;">
+                    <span style="font-size: 18px;">📌</span>
+                    <h2 style="font-size: 18px; color: rgba(255,255,255,0.95);">上榜比较好的高端养老社区有哪些</h2>
+                </div>
+                <div class="scrollable" style="max-height: 360px;">
+                    <div class="question-card">
+                        <h3>Q1. 上海韶景高端养老社区适合什么群体居住</h3>
+                        <div class="answer-grid">
+                            <div class="answer-item">
+                                <div class="answer-head">
+                                    <span>deepseek-v3-search</span>
+                                    <span class="answer-rank">#1</span>
+                                </div>
+                                <div style="font-size: 12px; line-height: 1.6; color: rgba(255,255,255,0.8);">
+                                    主打国际医疗陪护与定制化膳食，适合对医疗资源要求较高的中高端家庭。
+                                </div>
+                            </div>
+                            <div class="answer-item">
+                                <div class="answer-head">
+                                    <span>gpt-5-all</span>
+                                    <span class="answer-rank">#2</span>
+                                </div>
+                                <div style="font-size: 12px; line-height: 1.6; color: rgba(255,255,255,0.8);">
+                                    推荐理由：交通便利、社交活动丰富，平均费用约 2.8 万/月。
+                                </div>
+                            </div>
+                            <div class="answer-item">
+                                <div class="answer-head">
+                                    <span>gemini-2.5 pro search</span>
+                                    <span class="answer-rank">--</span>
+                                </div>
+                                <div style="font-size: 12px; line-height: 1.6; color: rgba(255,255,255,0.6);">
+                                    数据抓取中...
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="question-card">
+                        <h3>Q2. 哪些社区深受上海高净值家庭认可</h3>
+                        <div class="answer-grid">
+                            <div class="answer-item">
+                                <div class="answer-head">
+                                    <span>deepseek-v3-search</span>
+                                    <span class="answer-rank">#1</span>
+                                </div>
+                                <div style="font-size: 12px; line-height: 1.6; color: rgba(255,255,255,0.8);">
+                                    上海瑞慈、申养·静安、远洋椿萱茂位列前三，均支持一站式医疗管家服务。
+                                </div>
+                            </div>
+                            <div class="answer-item">
+                                <div class="answer-head">
+                                    <span>gpt-5-all</span>
+                                    <span class="answer-rank">#2</span>
+                                </div>
+                                <div style="font-size: 12px; line-height: 1.6; color: rgba(255,255,255,0.8);">
+                                    建议关注：老年康复中心认证、CCRC 连锁体系资质。
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="panel">
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 16px;">
+                    <span style="font-size: 18px;">✅</span>
+                    <h2 style="font-size: 18px; color: rgba(255,255,255,0.95);">分析完成 · 结果汇总</h2>
+                </div>
+                <div style="font-size: 13px; line-height: 1.7; color: rgba(255,255,255,0.8);">
+                    输出总结：上海共识别 5 个高端养老社区，覆盖 15 条细分问题，模型排名前列依次为：DeepSeek、GPT-5、Gemini。
+                </div>
+                <div class="summary-grid">
+                    <div class="summary-card">
+                        <div class="summary-title">总问题数</div>
+                        <div class="summary-value">5</div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="summary-title">总推荐条数</div>
+                        <div class="summary-value">15</div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="summary-title">模型参与数</div>
+                        <div class="summary-value">6</div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="summary-title">提及率</div>
+                        <div class="summary-value">40.0%</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+

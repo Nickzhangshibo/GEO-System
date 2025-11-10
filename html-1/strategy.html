@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>策略优化 - 品牌GEO优化系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei', sans-serif;
+            background: #f5f7fa;
+            overflow: hidden;
+        }
+        .layout {
+            display: flex;
+            height: 100vh;
+        }
+        .sidebar {
+            width: 240px;
+            background: #2c3e50;
+            color: white;
+            display: flex;
+            flex-direction: column;
+        }
+        .user-info {
+            padding: 20px;
+            background: #34495e;
+            border-bottom: 1px solid #3d4f63;
+        }
+        .user-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        .user-name {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        .user-role {
+            font-size: 12px;
+            color: #bdc3c7;
+        }
+        .nav-menu {
+            flex: 1;
+            padding: 20px 0;
+        }
+        .nav-item {
+            padding: 12px 20px;
+            cursor: pointer;
+            transition: background 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .nav-item:hover {
+            background: #34495e;
+        }
+        .nav-item.active {
+            background: #667eea;
+        }
+        .nav-item .icon {
+            font-size: 18px;
+            width: 20px;
+            text-align: center;
+        }
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .top-header {
+            height: 60px;
+            background: white;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            align-items: center;
+            padding: 0 30px;
+            justify-content: space-between;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            color: #667eea;
+        }
+        .top-nav {
+            display: flex;
+            gap: 30px;
+        }
+        .top-nav-item {
+            padding: 8px 16px;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background 0.3s;
+            color: #666;
+            cursor: pointer;
+        }
+        .top-nav-item:hover {
+            background: #f8f9fa;
+        }
+        .top-nav-item.active {
+            color: #667eea;
+            background: #e7f3ff;
+        }
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        .user-dropdown {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            color: #666;
+        }
+        .user-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+        .content-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background: #f5f7fa;
+        }
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .page-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #333;
+        }
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .filters {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .filter-group label {
+            font-size: 13px;
+            color: #666;
+        }
+        .filter-group select {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 13px;
+        }
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .strategy-item {
+            border: 1px solid #e9ecef;
+            border-radius: 6px;
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+        .strategy-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 15px;
+        }
+        .strategy-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+        }
+        .status-badge {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .status-pending {
+            background: #fff4e6;
+            color: #ff8800;
+        }
+        .status-executing {
+            background: #e7f3ff;
+            color: #0066cc;
+        }
+        .status-completed {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+        .strategy-info {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        .info-item {
+            font-size: 13px;
+            color: #666;
+        }
+        .info-item strong {
+            color: #333;
+        }
+        .strategy-desc {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+        .strategy-actions {
+            display: flex;
+            gap: 10px;
+        }
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+        .btn-secondary {
+            background: #f8f9fa;
+            color: #666;
+            border: 1px solid #ddd;
+        }
+    </style>
+</head>
+<body>
+    <div class="layout">
+        <div class="sidebar">
+            <div class="user-info">
+                <div class="user-avatar">张</div>
+                <div class="user-name">张经理</div>
+                <div class="user-role">产品经理</div>
+            </div>
+            <div class="nav-menu">
+                <div class="nav-item" onclick="location.href='index.html'">
+                    <span class="icon">🏠</span>
+                    <span>工作台</span>
+                </div>
+                <div class="nav-item" onclick="location.href='monitoring.html'">
+                    <span class="icon">📡</span>
+                    <span>数据监测</span>
+                </div>
+                <div class="nav-item active" onclick="location.href='strategy.html'">
+                    <span class="icon">💡</span>
+                    <span>策略优化</span>
+                </div>
+                <div class="nav-item" onclick="location.href='user-management.html'">
+                    <span class="icon">👥</span>
+                    <span>用户管理</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="top-header">
+                <div class="logo">
+                    <span>☁️</span>
+                    <span>品牌GEO优化系统</span>
+                </div>
+                <div class="top-nav">
+                    <div class="top-nav-item" onclick="location.href='index.html'">工作台</div>
+                    <div class="top-nav-item" onclick="location.href='monitoring-list.html'">数据监测</div>
+                    <div class="top-nav-item active" onclick="location.href='strategy-list.html'">策略优化</div>
+                    <div class="top-nav-item" onclick="location.href='user-management.html'">用户管理</div>
+                </div>
+                <div class="header-actions">
+                    <div class="user-dropdown">
+                        <div class="user-icon">管</div>
+                        <span>超级管理员</span>
+                        <span>▼</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="content-area">
+                <div class="page-header">
+                    <div class="page-title">策略优化</div>
+                    <button class="btn btn-primary" onclick="location.href='strategy-create.html'">+ 创建策略</button>
+                </div>
+
+                <div class="filters">
+                    <div class="filter-group">
+                        <label>状态：</label>
+                        <select>
+                            <option>全部状态</option>
+                            <option>待执行</option>
+                            <option>执行中</option>
+                            <option>已完成</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>关联任务：</label>
+                        <select>
+                            <option>全部任务</option>
+                            <option>百事可乐无糖监测任务</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>品牌：</label>
+                        <select>
+                            <option>全部品牌</option>
+                            <option>百事可乐</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="strategy-item">
+                        <div class="strategy-header">
+                            <div class="strategy-title">提升关键词覆盖率</div>
+                            <span class="status-badge status-pending">待执行</span>
+                        </div>
+                        <div class="strategy-info">
+                            <div class="info-item"><strong>关联任务：</strong>百事可乐无糖监测任务</div>
+                            <div class="info-item"><strong>品牌/SKU：</strong>百事可乐 / 碳酸饮料</div>
+                            <div class="info-item"><strong>负责人：</strong>张经理</div>
+                        </div>
+                        <div class="strategy-desc">
+                            <strong>优化方向：</strong>提升关键词覆盖率<br>
+                            <strong>具体措施：</strong>关键词"百事可乐无糖"覆盖率仅40%，需补充场景词衍生，增加相关长尾词覆盖。
+                        </div>
+                        <div class="strategy-actions">
+                            <button class="btn btn-primary btn-small">开始执行</button>
+                            <button class="btn btn-secondary btn-small">编辑策略</button>
+                            <button class="btn btn-secondary btn-small">查看关联任务</button>
+                        </div>
+                    </div>
+
+                    <div class="strategy-item">
+                        <div class="strategy-header">
+                            <div class="strategy-title">改善首位提及占比</div>
+                            <span class="status-badge status-executing">执行中</span>
+                        </div>
+                        <div class="strategy-info">
+                            <div class="info-item"><strong>关联任务：</strong>百事可乐经典监测任务</div>
+                            <div class="info-item"><strong>品牌/SKU：</strong>百事可乐 / 碳酸饮料</div>
+                            <div class="info-item"><strong>负责人：</strong>李经理</div>
+                        </div>
+                        <div class="strategy-desc">
+                            <strong>优化方向：</strong>改善首位提及占比<br>
+                            <strong>具体措施：</strong>当前首位提及占比25%，低于行业均值35%，建议优化内容结构，提升关键词在回答中的位置权重。
+                        </div>
+                        <div class="strategy-actions">
+                            <button class="btn btn-secondary btn-small">查看进度</button>
+                            <button class="btn btn-secondary btn-small">标记完成</button>
+                        </div>
+                    </div>
+
+                    <div class="strategy-item">
+                        <div class="strategy-header">
+                            <div class="strategy-title">降低负面提及率</div>
+                            <span class="status-badge status-completed">已完成</span>
+                        </div>
+                        <div class="strategy-info">
+                            <div class="info-item"><strong>关联任务：</strong>百事可乐零度监测任务</div>
+                            <div class="info-item"><strong>品牌/SKU：</strong>百事可乐 / 碳酸饮料</div>
+                            <div class="info-item"><strong>负责人：</strong>王经理</div>
+                        </div>
+                        <div class="strategy-desc">
+                            <strong>优化方向：</strong>降低负面提及率<br>
+                            <strong>具体措施：</strong>负面提及率从8%降至3%，优化效果显著。通过加强正面内容传播，有效降低了负面提及。
+                        </div>
+                        <div class="strategy-actions">
+                            <button class="btn btn-secondary btn-small">查看报告</button>
+                            <button class="btn btn-secondary btn-small">导出策略</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
