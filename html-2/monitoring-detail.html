@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>监测任务详情 - 品牌GEO优化系统 V2.0</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei', sans-serif;
+            background: #f5f7fa;
+            overflow: hidden;
+        }
+        .layout {
+            display: flex;
+            height: 100vh;
+        }
+        .sidebar {
+            width: 240px;
+            background: #2c3e50;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+        .user-info {
+            padding: 20px;
+            background: #34495e;
+            border-bottom: 1px solid #3d4f63;
+        }
+        .user-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        .user-name {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        .user-role {
+            font-size: 12px;
+            color: #bdc3c7;
+        }
+        .nav-menu {
+            flex: 1;
+            padding: 20px 0;
+        }
+        .nav-item {
+            padding: 12px 20px;
+            cursor: pointer;
+            transition: background 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .nav-item:hover {
+            background: #34495e;
+        }
+        .nav-item.active {
+            background: #667eea;
+        }
+        .nav-item .icon {
+            font-size: 18px;
+            width: 20px;
+            text-align: center;
+        }
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .top-header {
+            height: 60px;
+            background: white;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            align-items: center;
+            padding: 0 30px;
+            justify-content: space-between;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            color: #667eea;
+        }
+        .top-nav {
+            display: flex;
+            gap: 30px;
+        }
+        .top-nav-item {
+            padding: 8px 16px;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background 0.3s;
+            color: #666;
+            cursor: pointer;
+        }
+        .top-nav-item:hover {
+            background: #f8f9fa;
+        }
+        .top-nav-item.active {
+            color: #667eea;
+            background: #e7f3ff;
+        }
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        .user-dropdown {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            color: #666;
+        }
+        .user-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+        .content-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background: #f5f7fa;
+        }
+        .page-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .metric-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .metric-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+        }
+        .metric-card.light {
+            background: #ffffff;
+            color: #333;
+            border: 1px solid #e4e7ed;
+        }
+        .metric-card .label {
+            font-size: 13px;
+            opacity: 0.9;
+            margin-bottom: 8px;
+        }
+        .metric-card .value {
+            font-size: 28px;
+            font-weight: 600;
+        }
+        .metric-card .trend {
+            font-size: 12px;
+            margin-top: 5px;
+        }
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .info-help {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #667eea;
+            color: white;
+            text-align: center;
+            line-height: 16px;
+            font-size: 12px;
+            cursor: pointer;
+            margin-left: 5px;
+        }
+        .level-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .level-l0 { background: #9e9e9e; color: white; }
+        .level-l1 { background: #ffffff; color: #666; border: 1px solid #ddd; }
+        .level-l2 { background: #c8e6c9; color: #2e7d32; }
+        .level-l3 { background: #81c784; color: white; }
+        .level-l4 { background: #0066cc; color: white; }
+        .analysis-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+        .analysis-actions {
+            display: flex;
+            gap: 10px;
+        }
+        .analysis-actions .btn {
+            padding: 8px 18px;
+            border-radius: 20px;
+            font-size: 13px;
+            background: #f8f9fa;
+            color: #666;
+            border: 1px solid #e0e0e0;
+        }
+        .analysis-actions .btn.active {
+            background: #2d6cdf;
+            color: #fff;
+            border-color: #2d6cdf;
+        }
+        .result-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .result-table th {
+            background: #f8f9fa;
+            padding: 12px;
+            text-align: left;
+            font-size: 13px;
+            color: #666;
+        }
+        .result-table td {
+            padding: 12px;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 13px;
+            color: #333;
+        }
+        .result-table tr:last-child td {
+            border-bottom: none;
+        }
+        .link {
+            color: #2d6cdf;
+            text-decoration: none;
+            font-size: 13px;
+        }
+        .chip {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 10px;
+            border-radius: 16px;
+            background: #f0f4ff;
+            color: #2d6cdf;
+            font-size: 12px;
+            margin-right: 8px;
+        }
+        .chip-label {
+            color: #999;
+            margin-right: 4px;
+        }
+        .stats-row {
+            display: flex;
+            gap: 16px;
+            font-size: 12px;
+            color: #666;
+            justify-content: flex-end;
+        }
+        .stats-row span strong {
+            margin-left: 4px;
+            color: #333;
+        }
+        .tab-buttons {
+            display: inline-flex;
+            border-radius: 4px;
+            background: #f5f7fa;
+            padding: 2px;
+        }
+        .tab-button {
+            border: none;
+            background: transparent;
+            padding: 6px 14px;
+            font-size: 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            color: #555;
+        }
+        .tab-button.active {
+            background: #ffffff;
+            color: #2d6cdf;
+            box-shadow: 0 0 0 1px #d0ddff;
+        }
+        .model-block {
+            border: 1px solid #e4e7ed;
+            border-radius: 6px;
+            margin-bottom: 14px;
+            overflow: hidden;
+        }
+        .model-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 14px;
+            background: #f8f9fb;
+            font-size: 13px;
+        }
+        .model-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .model-name {
+            font-weight: 600;
+            color: #333;
+        }
+        .tag {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 11px;
+            background: #e6f0ff;
+            color: #2d6cdf;
+        }
+        .tag-gray {
+            background: #f0f1f5;
+            color: #666;
+        }
+        .brand-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 11px;
+            background: #e8f5e9;
+            color: #2e7d32;
+            margin-right: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="layout">
+        <div class="sidebar">
+            <div class="user-info">
+                <div class="user-avatar">张</div>
+                <div class="user-name">张经理</div>
+                <div class="user-role">产品经理</div>
+            </div>
+            <div class="nav-menu">
+                <div class="nav-item" onclick="location.href='index.html'">
+                    <span class="icon">🏠</span>
+                    <span>工作台</span>
+                </div>
+                <div class="nav-item active">
+                    <span class="icon">📡</span>
+                    <span>问题模型构建</span>
+                </div>
+                <div class="nav-item" onclick="location.href='strategy-list.html'">
+                    <span class="icon">💡</span>
+                    <span>策略优化</span>
+                </div>
+                <div class="nav-item" onclick="location.href='user-management.html'">
+                    <span class="icon">👥</span>
+                    <span>用户管理</span>
+                </div>
+            </div>
+        </div>
+        <div class="main-content">
+            <div class="top-header">
+                <div class="logo">
+                    <span>☁️</span>
+                    <span>品牌GEO优化系统 V2.0</span>
+                </div>
+                <div class="top-nav">
+                    <div class="top-nav-item" onclick="location.href='index.html'">工作台</div>
+                    <div class="top-nav-item active" onclick="location.href='monitoring-list.html'">问题模型构建</div>
+                    <div class="top-nav-item" onclick="location.href='strategy-list.html'">策略优化</div>
+                    <div class="top-nav-item" onclick="location.href='user-management.html'">用户管理</div>
+                </div>
+                <div class="header-actions">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span style="font-size: 13px; color: #666;">时间范围：</span>
+                        <select style="padding: 6px 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 13px;">
+                            <option>2025-09</option>
+                        </select>
+                        <button style="padding: 6px 16px; border: 1px solid #ddd; border-radius: 4px; background: white; cursor: pointer; font-size: 13px;">刷新</button>
+                    </div>
+                    <div class="user-dropdown">
+                        <div class="user-icon">管</div>
+                        <span>超级管理员</span>
+                        <span>▼</span>
+                    </div>
+                </div>
+            </div>
+            <div class="content-area">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <div>
+                        <div class="page-title">百事可乐无糖关键词监测</div>
+                        <div style="font-size: 13px; color: #666; margin-top: 5px;">品牌：百事可乐 | SKU：无糖可乐 | 监测周期：2025-09-01 至 2025-09-30</div>
+                    </div>
+                    <div style="display: flex; gap: 10px;">
+                        <button class="btn btn-primary" onclick="location.href='strategy-create.html?taskId=1'">创建策略</button>
+                        <button class="btn" style="background: #f8f9fa; color: #666;">导出数据</button>
+                    </div>
+                </div>
+                <div style="background: #e7f3ff; padding: 12px 15px; border-radius: 6px; margin-bottom: 16px; font-size: 13px; color: #0066cc;">
+                    📌 当前授权范围：品牌【百事可乐】+ SKU【无糖可乐】
+                </div>
+
+                <!-- 测试分析 -->
+                <div class="card">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;">
+                        <div>
+                            <div style="font-size: 16px; font-weight: 600; margin-bottom: 8px;">测试分析</div>
+                            <div>
+                                <span class="chip"><span class="chip-label">关键词</span>牛奶</span>
+                                <span class="chip"><span class="chip-label">目标品牌</span>蒙牛</span>
+                            </div>
+                        </div>
+                        <div class="stats-row">
+                            <span>推荐数量<strong>10</strong></span>
+                            <span>询问数<strong>4</strong></span>
+                            <span>结果<strong>20</strong></span>
+                            <button class="btn" style="padding: 6px 12px; font-size: 12px; background:#f8f9fa;">导出页面</button>
+                            <button class="btn" style="padding: 6px 12px; font-size: 12px; background:#f8f9fa;">导出JSON</button>
+                        </div>
+                    </div>
+                    <div class="metric-grid" style="margin-bottom: 0;">
+                        <div class="metric-card light">
+                            <div class="label">目标品牌出现率</div>
+                            <div class="value" style="color:#f39c12;">75.0%</div>
+                        </div>
+                        <div class="metric-card light">
+                            <div class="label">最佳排名</div>
+                            <div class="value" style="color:#27ae60;">#1</div>
+                        </div>
+                        <div class="metric-card light">
+                            <div class="label">目标品牌平均排名</div>
+                            <div class="value">3.9</div>
+                        </div>
+                        <div class="metric-card light">
+                            <div class="label">排名相关性</div>
+                            <div class="value">-0.129</div>
+                        </div>
+                        <div class="metric-card light">
+                            <div class="label">Top 3 平均分</div>
+                            <div class="value">15.2</div>
+                        </div>
+                        <div class="metric-card light">
+                            <div class="label">Top 10 平均分</div>
+                            <div class="value">10.1</div>
+                        </div>
+                        <div class="metric-card light">
+                            <div class="label">排名一致性</div>
+                            <div class="value" style="color:#e67e22;">2.14</div>
+                        </div>
+                    </div>
+                    <div style="margin-top: 12px; font-size: 12px; color: #666;">
+                        排名与匹配度呈现弱负相关，排名与匹配度存在一定关联。前三名品牌平均匹配度为 15.2，建议优化。
+                    </div>
+                </div>
+
+                <!-- 测试结果 -->
+                <div class="card">
+                    <div class="analysis-header">
+                        <div>
+                            <h3 style="font-size: 16px; margin-bottom: 4px;">测试结果（5 个模型，共 20 条结果）</h3>
+                            <div style="font-size: 12px; color: #666;">按照模型维度查看不同大模型下目标品牌的排名表现。</div>
+                        </div>
+                        <div class="tab-buttons">
+                            <button class="tab-button active">按模型分组</button>
+                            <button class="tab-button">按问题分组</button>
+                        </div>
+                    </div>
+
+                    <!-- 模型 1 -->
+                    <div class="model-block">
+                        <div class="model-header">
+                            <div class="model-info">
+                                <span class="model-name">baidu/ERNIE-4.5-300B-A47B</span>
+                                <span class="tag tag-gray">4 个查询结果</span>
+                                <span class="tag">平均：8.3</span>
+                                <span class="tag">最佳：#2</span>
+                                <span class="tag tag-gray">品牌数：39</span>
+                            </div>
+                            <a href="#" class="link">收起</a>
+                        </div>
+                        <table class="result-table">
+                            <thead>
+                                <tr>
+                                    <th>询问语句</th>
+                                    <th>目标品牌</th>
+                                    <th>目标排名</th>
+                                    <th>品牌数</th>
+                                    <th>品牌列表</th>
+                                    <th>回答</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>牛奶和豆奶哪个更健康</td>
+                                    <td><span class="brand-badge">✓ 蒙牛</span></td>
+                                    <td>#2</td>
+                                    <td>9</td>
+                                    <td>
+                                        <span class="brand-badge">#1 伊利</span>
+                                        <span class="brand-badge">#2 蒙牛</span>
+                                        <span class="tag tag-gray">#3 光明</span>
+                                        <span class="tag tag-gray">#4 三元</span>
+                                        <span class="tag tag-gray">...</span>
+                                    </td>
+                                    <td><a class="link" href="#">查看回答</a></td>
+                                </tr>
+                                <tr>
+                                    <td>推荐一款适合宝宝喝的牛奶</td>
+                                    <td><span class="brand-badge">✓ 蒙牛</span></td>
+                                    <td>#6</td>
+                                    <td>10</td>
+                                    <td>
+                                        <span class="brand-badge">#2 蒙牛</span>
+                                        <span class="tag tag-gray">#1 安佳</span>
+                                        <span class="tag tag-gray">#3 德运</span>
+                                        <span class="tag tag-gray">#4 光明</span>
+                                        <span class="tag tag-gray">...</span>
+                                    </td>
+                                    <td><a class="link" href="#">查看回答</a></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- 模型 2 -->
+                    <div class="model-block">
+                        <div class="model-header">
+                            <div class="model-info">
+                                <span class="model-name">deepseek-v3-search</span>
+                                <span class="tag tag-gray">4 个查询结果</span>
+                                <span class="tag">平均：5.0</span>
+                                <span class="tag">最佳：#2</span>
+                                <span class="tag tag-gray">品牌数：43</span>
+                            </div>
+                            <a href="#" class="link">展开</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+
+
+
+
+

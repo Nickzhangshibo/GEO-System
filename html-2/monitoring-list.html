@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>问题模型构建 - 品牌GEO优化系统 V2.0</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei', sans-serif;
+            background: #f5f7fa;
+            overflow: hidden;
+        }
+        .layout {
+            display: flex;
+            height: 100vh;
+        }
+        .sidebar {
+            width: 240px;
+            background: #2c3e50;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+        .user-info {
+            padding: 20px;
+            background: #34495e;
+            border-bottom: 1px solid #3d4f63;
+        }
+        .user-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        .user-name {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        .user-role {
+            font-size: 12px;
+            color: #bdc3c7;
+        }
+        .nav-menu {
+            flex: 1;
+            padding: 20px 0;
+        }
+        .nav-item {
+            padding: 12px 20px;
+            cursor: pointer;
+            transition: background 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .nav-item:hover {
+            background: #34495e;
+        }
+        .nav-item.active {
+            background: #667eea;
+        }
+        .nav-item .icon {
+            font-size: 18px;
+            width: 20px;
+            text-align: center;
+        }
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .top-header {
+            height: 60px;
+            background: white;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            align-items: center;
+            padding: 0 30px;
+            justify-content: space-between;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            color: #667eea;
+        }
+        .top-nav {
+            display: flex;
+            gap: 30px;
+        }
+        .top-nav-item {
+            padding: 8px 16px;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background 0.3s;
+            color: #666;
+            cursor: pointer;
+        }
+        .top-nav-item:hover {
+            background: #f8f9fa;
+        }
+        .top-nav-item.active {
+            color: #667eea;
+            background: #e7f3ff;
+        }
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        .user-dropdown {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            color: #666;
+        }
+        .user-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+        .content-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background: #f5f7fa;
+        }
+        .page-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .table th {
+            background: #f8f9fa;
+            padding: 12px;
+            text-align: left;
+            font-size: 13px;
+            color: #666;
+            font-weight: 600;
+            border-bottom: 2px solid #e9ecef;
+        }
+        .table td {
+            padding: 12px;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 13px;
+            color: #333;
+        }
+        .table tr:hover {
+            background: #f8f9fa;
+        }
+        .status-badge {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .status-running {
+            background: #e7f3ff;
+            color: #0066cc;
+        }
+        .status-completed {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+        .status-expired {
+            background: #ffebee;
+            color: #c62828;
+        }
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .btn-primary:hover {
+            opacity: 0.9;
+        }
+        .btn-secondary {
+            background: #f8f9fa;
+            color: #666;
+        }
+        .form-select {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 13px;
+            background: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="layout">
+        <div class="sidebar">
+            <div class="user-info">
+                <div class="user-avatar">张</div>
+                <div class="user-name">张经理</div>
+                <div class="user-role">产品经理</div>
+            </div>
+            <div class="nav-menu">
+                <div class="nav-item" onclick="location.href='index.html'">
+                    <span class="icon">🏠</span>
+                    <span>工作台</span>
+                </div>
+                <div class="nav-item active">
+                    <span class="icon">📡</span>
+                    <span>问题模型构建</span>
+                </div>
+                <div class="nav-item" onclick="location.href='strategy-list.html'">
+                    <span class="icon">💡</span>
+                    <span>策略优化</span>
+                </div>
+                <div class="nav-item" onclick="location.href='user-management.html'">
+                    <span class="icon">👥</span>
+                    <span>用户管理</span>
+                </div>
+            </div>
+        </div>
+        <div class="main-content">
+            <div class="top-header">
+                <div class="logo">
+                    <span>☁️</span>
+                    <span>品牌GEO优化系统 V2.0</span>
+                </div>
+                <div class="top-nav">
+                    <div class="top-nav-item" onclick="location.href='index.html'">工作台</div>
+                    <div class="top-nav-item active" onclick="location.href='monitoring-list.html'">问题模型构建</div>
+                    <div class="top-nav-item" onclick="location.href='strategy-list.html'">策略优化</div>
+                    <div class="top-nav-item" onclick="location.href='user-management.html'">用户管理</div>
+                </div>
+                <div class="header-actions">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span style="font-size: 13px; color: #666;">时间范围：</span>
+                        <select style="padding: 6px 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 13px;">
+                            <option>2025-09</option>
+                        </select>
+                        <button style="padding: 6px 16px; border: 1px solid #ddd; border-radius: 4px; background: white; cursor: pointer; font-size: 13px;">刷新</button>
+                    </div>
+                    <div class="user-dropdown">
+                        <div class="user-icon">管</div>
+                        <span>超级管理员</span>
+                        <span>▼</span>
+                    </div>
+                </div>
+            </div>
+                <div class="content-area">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <div class="page-title">监测任务列表</div>
+                    <button class="btn btn-primary" onclick="location.href='monitoring-create.html'">+ 创建任务</button>
+                </div>
+                <div style="background: #e7f3ff; padding: 12px 15px; border-radius: 6px; margin-bottom: 20px; font-size: 13px; color: #0066cc;">
+                    📌 当前授权范围：品牌【百事可乐】+ SKU【碳酸饮料、无糖可乐】
+                </div>
+                <div class="card" style="margin-bottom: 20px;">
+                    <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                        <div>
+                            <label style="font-size: 13px; color: #666; margin-right: 8px;">品牌筛选：</label>
+                            <select class="form-select">
+                                <option>全部品牌</option>
+                                <option>百事可乐</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="font-size: 13px; color: #666; margin-right: 8px;">SKU筛选：</label>
+                            <select class="form-select">
+                                <option>全部SKU</option>
+                                <option>碳酸饮料</option>
+                                <option>无糖可乐</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="font-size: 13px; color: #666; margin-right: 8px;">状态筛选：</label>
+                            <select class="form-select">
+                                <option>全部状态</option>
+                                <option>监测中</option>
+                                <option>已完成</option>
+                                <option>已过期</option>
+                            </select>
+                        </div>
+                        <button class="btn btn-secondary">重置</button>
+                    </div>
+                </div>
+                <div class="card">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th style="width: 40px;"><input type="checkbox"></th>
+                                <th>任务名称</th>
+                                <th>品牌</th>
+                                <th>SKU</th>
+                                <th>核心词数量</th>
+                                <th>监测周期</th>
+                                <th>品牌提及率</th>
+                                <th>状态</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><input type="checkbox"></td>
+                                <td><a href="monitoring-detail.html" style="color: #667eea; text-decoration: none; font-weight: 500;">百事可乐无糖关键词监测</a></td>
+                                <td>百事可乐</td>
+                                <td>无糖可乐</td>
+                                <td>15个</td>
+                                <td>2025-09-01 至 2025-09-30</td>
+                                <td><span style="font-weight: 600; color: #28a745;">25.3%</span> <span style="font-size: 12px; color: #999;">环比 +5%</span></td>
+                                <td><span class="status-badge status-running">监测中</span></td>
+                                <td>
+                                    <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                                        <a href="monitoring-detail.html" style="color: #667eea; text-decoration: none; font-size: 13px;">查看</a>
+                                        <a href="strategy-create.html?taskId=1" style="color: #667eea; text-decoration: none; font-size: 13px;">创建策略</a>
+                                        <a href="realtime-analysis.html" style="color: #667eea; text-decoration: none; font-size: 13px;">实时分析</a>
+                                        <a href="#" style="color: #667eea; text-decoration: none; font-size: 13px;">导出</a>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><input type="checkbox"></td>
+                                <td><a href="monitoring-detail.html" style="color: #667eea; text-decoration: none; font-weight: 500;">百事可乐碳酸饮料监测</a></td>
+                                <td>百事可乐</td>
+                                <td>碳酸饮料</td>
+                                <td>32个</td>
+                                <td>2025-08-01 至 2025-08-31</td>
+                                <td><span style="font-weight: 600; color: #28a745;">28.5%</span> <span style="font-size: 12px; color: #999;">环比 +3%</span></td>
+                                <td><span class="status-badge status-completed">已完成</span></td>
+                                <td>
+                                    <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                                        <a href="monitoring-detail.html" style="color: #667eea; text-decoration: none; font-size: 13px;">查看</a>
+                                        <a href="#" style="color: #667eea; text-decoration: none; font-size: 13px;">重新监测</a>
+                                        <a href="realtime-analysis.html" style="color: #667eea; text-decoration: none; font-size: 13px;">实时分析</a>
+                                        <a href="#" style="color: #667eea; text-decoration: none; font-size: 13px;">导出</a>
+                                    </div>
+                                </td>
+                               
+                            </tr>
+                            <tr>
+                                <td><input type="checkbox"></td>
+                                <td><a href="monitoring-detail.html" style="color: #667eea; text-decoration: none; font-weight: 500;">星巴克新品冷萃提及率监测</a></td>
+                                <td>星巴克</td>
+                                <td>冷萃咖啡</td>
+                                <td>18个</td>
+                                <td>2025-06-15 至 2025-07-15</td>
+                                <td><span style="font-weight: 600; color: #c62828;">18.2%</span> <span style="font-size: 12px; color: #999;">环比 -4%</span></td>
+                                <td><span class="status-badge status-expired">已过期</span></td>
+                                <td>
+                                    <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                                        <a href="monitoring-detail.html" style="color: #667eea; text-decoration: none; font-size: 13px;">查看</a>
+                                        <a href="#" style="color: #667eea; text-decoration: none; font-size: 13px;">重新监测</a>
+                                        <a href="realtime-analysis.html" style="color: #667eea; text-decoration: none; font-size: 13px;">实时分析</a>
+                                        <a href="#" style="color: #667eea; text-decoration: none; font-size: 13px;">导出</a>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
