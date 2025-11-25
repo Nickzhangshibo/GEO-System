@@ -330,63 +330,175 @@
                 <div class="card">
                     <div class="section-title">指标目标值配置</div>
                     <div class="section-subtitle">
-                        以下默认目标值由当前分析结果自动计算而来，你可以按实际业务需求进行调整，系统将基于“当前值 vs 目标值”的差距生成策略建议。
+                        以下默认目标值由当前分析结果自动计算而来，你可以按实际业务需求进行调整，系统将基于"当前值 vs 目标值"的差距生成策略建议。
+                    </div>
+
+                    <!-- 一、品牌提及维度 -->
+                    <div style="margin-top: 24px; margin-bottom: 16px;">
+                        <h3 style="font-size: 15px; font-weight: 600; color: #333; margin-bottom: 4px;">一、品牌提及维度</h3>
+                        <div style="font-size: 12px; color: #666;">核心基础指标，直接反映品牌在核心词关联场景下的曝光广度</div>
                     </div>
                     <div class="metrics-grid">
                         <div class="metric-block">
                             <div class="metric-label">品牌提及率</div>
                             <div class="metric-row">
                                 <span>当前值：</span>
-                                <div class="metric-value">25.0%</div>
+                                <div class="metric-value">77.8%</div>
                             </div>
                             <div class="metric-row">
                                 <span>目标值：</span>
-                                <input class="metric-input" type="number" value="30" min="0" max="100">%
+                                <input class="metric-input" type="number" value="85" min="0" max="100" step="0.1">%
                             </div>
                             <div class="metric-row">
                                 <span>差值：</span>
-                                <div class="metric-diff">+5.0%</div>
+                                <div class="metric-diff">+7.2%</div>
                             </div>
                         </div>
                         <div class="metric-block">
-                            <div class="metric-label">品牌平均排名</div>
+                            <div class="metric-label">关键词提及率</div>
                             <div class="metric-row">
                                 <span>当前值：</span>
-                                <div class="metric-value">4</div>
+                                <div class="metric-value">88.9%</div>
                             </div>
                             <div class="metric-row">
                                 <span>目标值：</span>
-                                <input class="metric-input" type="number" value="3" min="1"> 位
+                                <input class="metric-input" type="number" value="95" min="0" max="100" step="0.1">%
                             </div>
                             <div class="metric-row">
                                 <span>差值：</span>
-                                <div class="metric-diff">提升 1 位</div>
+                                <div class="metric-diff">+6.1%</div>
                             </div>
                         </div>
                         <div class="metric-block">
-                            <div class="metric-label">排名相关性</div>
+                            <div class="metric-label">首位提及占比</div>
                             <div class="metric-row">
                                 <span>当前值：</span>
-                                <div class="metric-value">0.45</div>
+                                <div class="metric-value">64.3%</div>
                             </div>
                             <div class="metric-row">
                                 <span>目标值：</span>
-                                <input class="metric-input" type="number" value="0.55" min="0" max="1" step="0.1">
+                                <input class="metric-input" type="number" value="70" min="0" max="100" step="0.1">%
                             </div>
                             <div class="metric-row">
                                 <span>差值：</span>
-                                <div class="metric-diff">+0.10</div>
+                                <div class="metric-diff">+5.7%</div>
                             </div>
                         </div>
                         <div class="metric-block">
-                            <div class="metric-label">Top 3 平均分</div>
+                            <div class="metric-label">核心区域占比</div>
                             <div class="metric-row">
                                 <span>当前值：</span>
-                                <div class="metric-value">8.2</div>
+                                <div class="metric-value">50.0%</div>
                             </div>
                             <div class="metric-row">
                                 <span>目标值：</span>
-                                <input class="metric-input" type="number" value="8.7" min="0" max="10" step="0.1">
+                                <input class="metric-input" type="number" value="60" min="0" max="100" step="0.1">%
+                            </div>
+                            <div class="metric-row">
+                                <span>差值：</span>
+                                <div class="metric-diff">+10.0%</div>
+                            </div>
+                        </div>
+                        <div class="metric-block">
+                            <div class="metric-label">提及关联强度（强关联占比）</div>
+                            <div class="metric-row">
+                                <span>当前值：</span>
+                                <div class="metric-value">57.1%</div>
+                            </div>
+                            <div class="metric-row">
+                                <span>目标值：</span>
+                                <input class="metric-input" type="number" value="65" min="0" max="100" step="0.1">%
+                            </div>
+                            <div class="metric-row">
+                                <span>差值：</span>
+                                <div class="metric-diff">+7.9%</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 二、内容解析维度 -->
+                    <div style="margin-top: 32px; margin-bottom: 16px;">
+                        <h3 style="font-size: 15px; font-weight: 600; color: #333; margin-bottom: 4px;">二、内容解析维度</h3>
+                        <div style="font-size: 12px; color: #666;">评估品牌信息准确性、情感倾向与核心卖点传递效果</div>
+                    </div>
+                    <div class="metrics-grid">
+                        <div class="metric-block">
+                            <div class="metric-label">品牌信息准确性</div>
+                            <div class="metric-row">
+                                <span>当前值：</span>
+                                <div class="metric-value">85.7%</div>
+                            </div>
+                            <div class="metric-row">
+                                <span>目标值：</span>
+                                <input class="metric-input" type="number" value="92" min="0" max="100" step="0.1">%
+                            </div>
+                            <div class="metric-row">
+                                <span>差值：</span>
+                                <div class="metric-diff">+6.3%</div>
+                            </div>
+                        </div>
+                        <div class="metric-block">
+                            <div class="metric-label">品牌情感倾向分布（正向占比）</div>
+                            <div class="metric-row">
+                                <span>当前值：</span>
+                                <div class="metric-value">64.3%</div>
+                            </div>
+                            <div class="metric-row">
+                                <span>目标值：</span>
+                                <input class="metric-input" type="number" value="75" min="0" max="100" step="0.1">%
+                            </div>
+                            <div class="metric-row">
+                                <span>差值：</span>
+                                <div class="metric-diff">+10.7%</div>
+                            </div>
+                        </div>
+                        <div class="metric-block">
+                            <div class="metric-label">核心卖点传递率（总传递率）</div>
+                            <div class="metric-row">
+                                <span>当前值：</span>
+                                <div class="metric-value">28.6%</div>
+                            </div>
+                            <div class="metric-row">
+                                <span>目标值：</span>
+                                <input class="metric-input" type="number" value="40" min="0" max="100" step="0.1">%
+                            </div>
+                            <div class="metric-row">
+                                <span>差值：</span>
+                                <div class="metric-diff">+11.4%</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 三、竞争对标维度 -->
+                    <div style="margin-top: 32px; margin-bottom: 16px;">
+                        <h3 style="font-size: 15px; font-weight: 600; color: #333; margin-bottom: 4px;">三、竞争对标维度</h3>
+                        <div style="font-size: 12px; color: #666;">量化品牌在竞争中的相对优势与差异化表现</div>
+                    </div>
+                    <div class="metrics-grid">
+                        <div class="metric-block">
+                            <div class="metric-label">竞品提及关联率</div>
+                            <div class="metric-row">
+                                <span>当前值：</span>
+                                <div class="metric-value">64.3%</div>
+                            </div>
+                            <div class="metric-row">
+                                <span>目标值：</span>
+                                <input class="metric-input" type="number" value="70" min="0" max="100" step="0.1">%
+                            </div>
+                            <div class="metric-row">
+                                <span>差值：</span>
+                                <div class="metric-diff">+5.7%</div>
+                            </div>
+                        </div>
+                        <div class="metric-block">
+                            <div class="metric-label">品牌-竞品优势提及比</div>
+                            <div class="metric-row">
+                                <span>当前值：</span>
+                                <div class="metric-value">1.5</div>
+                            </div>
+                            <div class="metric-row">
+                                <span>目标值：</span>
+                                <input class="metric-input" type="number" value="2.0" min="0" step="0.1">
                             </div>
                             <div class="metric-row">
                                 <span>差值：</span>
@@ -394,18 +506,71 @@
                             </div>
                         </div>
                         <div class="metric-block">
-                            <div class="metric-label">Top 10 平均分</div>
+                            <div class="metric-label">竞品负面提及联动率</div>
+                            <div class="metric-row">
+                                <span>当前值：</span>
+                                <div class="metric-value">33.3%</div>
+                            </div>
+                            <div class="metric-row">
+                                <span>目标值：</span>
+                                <input class="metric-input" type="number" value="40" min="0" max="100" step="0.1">%
+                            </div>
+                            <div class="metric-row">
+                                <span>差值：</span>
+                                <div class="metric-diff">+6.7%</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 四、价值评估维度 -->
+                    <div style="margin-top: 32px; margin-bottom: 16px;">
+                        <h3 style="font-size: 15px; font-weight: 600; color: #333; margin-bottom: 4px;">四、价值评估维度</h3>
+                        <div style="font-size: 12px; color: #666;">直接反映品牌在用户决策中的优先级与内容价值</div>
+                    </div>
+                    <div class="metrics-grid">
+                        <div class="metric-block">
+                            <div class="metric-label">品牌心智占领率</div>
+                            <div class="metric-row">
+                                <span>当前值：</span>
+                                <div class="metric-value">38.9%</div>
+                            </div>
+                            <div class="metric-row">
+                                <span>目标值：</span>
+                                <input class="metric-input" type="number" value="50" min="0" max="100" step="0.1">%
+                            </div>
+                            <div class="metric-row">
+                                <span>差值：</span>
+                                <div class="metric-diff">+11.1%</div>
+                            </div>
+                        </div>
+                        <div class="metric-block">
+                            <div class="metric-label">信源权威性评分</div>
                             <div class="metric-row">
                                 <span>当前值：</span>
                                 <div class="metric-value">7.4</div>
                             </div>
                             <div class="metric-row">
                                 <span>目标值：</span>
-                                <input class="metric-input" type="number" value="7.7" min="0" max="10" step="0.1">
+                                <input class="metric-input" type="number" value="8.5" min="0" max="10" step="0.1">
                             </div>
                             <div class="metric-row">
                                 <span>差值：</span>
-                                <div class="metric-diff">+0.3</div>
+                                <div class="metric-diff">+1.1</div>
+                            </div>
+                        </div>
+                        <div class="metric-block">
+                            <div class="metric-label">问题-回复价值匹配度</div>
+                            <div class="metric-row">
+                                <span>当前值：</span>
+                                <div class="metric-value">6.6</div>
+                            </div>
+                            <div class="metric-row">
+                                <span>目标值：</span>
+                                <input class="metric-input" type="number" value="8.0" min="0" max="10" step="0.1">
+                            </div>
+                            <div class="metric-row">
+                                <span>差值：</span>
+                                <div class="metric-diff">+1.4</div>
                             </div>
                         </div>
                     </div>
@@ -424,24 +589,25 @@
                     <div class="strategy-list">
                         <h4>一、核心差距分析</h4>
                         <ul>
-                            <li><strong>高优先级：</strong>品牌提及率（需提升 5%）、Top 3 平均分（需提升 0.5 分）。</li>
-                            <li><strong>中优先级：</strong>排名相关性（需提升 0.10）、Top 10 平均分（需提升 0.3 分）。</li>
-                            <li><strong>低优先级：</strong>品牌平均排名（目标从 4 提升至 3，调整空间适中）。</li>
+                            <li><strong>品牌提及维度（高优先级）：</strong>核心区域占比需提升 10.0%，品牌提及率需提升 7.2%，关键词提及率需提升 6.1%。</li>
+                            <li><strong>内容解析维度（高优先级）：</strong>核心卖点传递率需提升 11.4%，品牌情感倾向正向占比需提升 10.7%，品牌信息准确性需提升 6.3%。</li>
+                            <li><strong>价值评估维度（中优先级）：</strong>品牌心智占领率需提升 11.1%，问题-回复价值匹配度需提升 1.4 分，信源权威性评分需提升 1.1 分。</li>
+                            <li><strong>竞争对标维度（中优先级）：</strong>竞品负面提及联动率需提升 6.7%，品牌-竞品优势提及比需提升 0.5，竞品提及关联率需提升 5.7%。</li>
                         </ul>
 
                         <h4>二、针对性优化建议</h4>
                         <ul>
-                            <li>围绕核心词<strong>“无糖饮料 / 高端养老社区”</strong>，在问题模型构建中新增场景化询问语句，如“2025 年无糖饮料推荐里百事可乐表现如何？”。</li>
-                            <li>增加与目标品牌相关的正向证据（权威报告、真实用户评价等），提升模型在排序时对品牌的信任度权重。</li>
-                            <li>对当前 Top 3 排名中的回答进行内容审查，对结构松散、信息不完整的回答进行重写，以提高评分。</li>
-                            <li>在问题模型中增加与竞品对比的提问方式，例如“百事可乐无糖和可口可乐无糖哪个更适合控制糖分？”。</li>
+                            <li><strong>品牌提及维度优化：</strong>围绕目标关键词和品牌关键词，在问题模型构建中新增场景化询问语句，提升品牌在AI回答中的曝光广度；优化内容结构，确保品牌信息出现在核心区域（加粗、结论段）。</li>
+                            <li><strong>内容解析维度优化：</strong>补充品牌核心卖点相关权威内容，提升卖点传递率；加强正向情感内容布局，降低负面提及率；完善品牌信息准确性，补充官网参数页等权威信源。</li>
+                            <li><strong>价值评估维度优化：</strong>强化品牌在用户决策中的优先级定位，提升品牌心智占领率；补充高质量信源（官网、权威媒体、第三方测评），提升信源权威性评分；优化内容与用户问题的匹配度，提升问题-回复价值匹配度。</li>
+                            <li><strong>竞争对标维度优化：</strong>在问题模型中增加与竞品对比的提问方式，提升竞品提及关联率；强化品牌差异化优势内容，提升品牌-竞品优势提及比；优化对比场景下的品牌优势表达，提升竞品负面提及联动率。</li>
                         </ul>
 
                         <h4>三、执行步骤指引</h4>
                         <ul>
-                            <li>步骤 1：返回【问题模型构建】模块，对已选任务新增或调整核心词与相关品牌配置。</li>
-                            <li>步骤 2：使用新的参数重新生成询问语句，重点保留与目标品牌和竞品强相关的问题。</li>
-                            <li>步骤 3：发起新一轮分析，在【分析结果】页面对比本次与上次的指标变化。</li>
+                            <li>步骤 1：返回【问题模型构建】模块，对已选任务新增或调整问题关键词、目标关键词和品牌关键词配置。</li>
+                            <li>步骤 2：使用新的参数重新生成询问语句，重点保留与目标品牌和竞品强相关的问题，确保覆盖 4 个维度的优化需求。</li>
+                            <li>步骤 3：发起新一轮分析，在【分析结果】页面对比本次与上次的指标变化，重点关注 4 个维度的提升情况。</li>
                             <li>步骤 4：将效果较好的问题模型沉淀为模板，供后续活动复用。</li>
                         </ul>
 
@@ -456,6 +622,7 @@
     </div>
 </body>
 </html>
+
 
 
 
