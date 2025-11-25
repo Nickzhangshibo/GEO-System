@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>监测任务详情 - 品牌GEO优化系统 V2.0</title>
+    <title>问题模型构建详情 - 品牌GEO优化系统 V2.01</title>
     <style>
         * {
             margin: 0;
@@ -365,7 +365,253 @@
             color: #2e7d32;
             margin-right: 4px;
         }
+        .metric-card {
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .metric-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .metric-detail-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        .metric-detail-content {
+            background: white;
+            border-radius: 8px;
+            padding: 30px;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+        }
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 24px;
+            cursor: pointer;
+            color: #999;
+        }
     </style>
+    <script>
+        function filterMetrics(dimension) {
+            // 获取所有维度卡片元素（使用新的 ID）
+            const mentionCard = document.getElementById('dimension-mention');
+            const contentCard = document.getElementById('dimension-content');
+            const competitionCard = document.getElementById('dimension-competition');
+            const valueCard = document.getElementById('dimension-value');
+            
+            // 隐藏所有维度卡片
+            if (mentionCard) mentionCard.style.display = 'none';
+            if (contentCard) contentCard.style.display = 'none';
+            if (competitionCard) competitionCard.style.display = 'none';
+            if (valueCard) valueCard.style.display = 'none';
+            
+            // 更新所有标签按钮状态（使用 data-dimension 属性）
+            const allTabButtons = document.querySelectorAll('.tab-button[data-dimension]');
+            allTabButtons.forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.getAttribute('data-dimension') === dimension) {
+                    btn.classList.add('active');
+                }
+            });
+            
+            // 显示对应维度
+            if (dimension === 'mention' && mentionCard) {
+                mentionCard.style.display = 'block';
+            } else if (dimension === 'content' && contentCard) {
+                contentCard.style.display = 'block';
+            } else if (dimension === 'competition' && competitionCard) {
+                competitionCard.style.display = 'block';
+            } else if (dimension === 'value' && valueCard) {
+                valueCard.style.display = 'block';
+            }
+        }
+        
+        function showMetricDetail(metricId) {
+            const modal = document.getElementById('metric-detail-modal');
+            if (!modal) {
+                const modalHtml = `
+                    <div class="metric-detail-modal" id="metric-detail-modal" onclick="closeMetricDetail(event)">
+                        <div class="metric-detail-content" onclick="event.stopPropagation()">
+                            <span class="close-btn" onclick="closeMetricDetail()">&times;</span>
+                            <h3 id="metric-detail-title">指标详情</h3>
+                            <div id="metric-detail-body"></div>
+                        </div>
+                    </div>
+                `;
+                document.body.insertAdjacentHTML('beforeend', modalHtml);
+            }
+            
+            const metricDetails = {
+                'brand-mention-rate': {
+                    title: '品牌提及率',
+                    content: `
+                        <p><strong>算法公式：</strong>品牌提及率 =（提及目标品牌的有效回复数 ÷ 总有效回复数）× 100%</p>
+                        <p><strong>应用价值：</strong>核心基础指标，直接反映品牌在核心词关联场景下的曝光广度，判断品牌是否被大模型纳入相关话题讨论范围</p>
+                        <p><strong>示例：</strong>核心词"无糖可乐"，目标品牌"百事可乐"，有效回复 18 个，14 个提及百事可乐，提及率 = 14÷18×100%≈77.8%</p>
+                    `
+                },
+                'keyword-mention-rate': {
+                    title: '关键词提及率',
+                    content: `
+                        <p><strong>算法公式：</strong>关键词提及率 =（提及目标关键词的有效回复数 ÷ 总有效回复数）× 100%</p>
+                        <p><strong>应用价值：</strong>核心基础指标，直接反映目标关键词在AI回答中的曝光广度，判断关键词是否被大模型纳入相关话题讨论范围，与品牌提及率结合可分析关键词与品牌的关联强度</p>
+                        <p><strong>示例：</strong>目标关键词"无糖可乐"，有效回复 18 个，16 个提及"无糖可乐"，关键词提及率 = 16÷18×100%≈88.9%</p>
+                    `
+                },
+                'first-mention-rate': {
+                    title: '首位提及占比',
+                    content: `
+                        <p><strong>算法公式：</strong>首位提及占比 =（首段/推荐第一位提及品牌的次数 ÷ 品牌总提及次数）× 100%</p>
+                        <p><strong>应用价值：</strong>反映品牌在大模型回复中的"优先级曝光"能力，位置越靠前用户关注度越高，比单纯提及率更能体现曝光质量</p>
+                        <p><strong>示例：</strong>百事可乐总提及 14 次，6 次在首段、3 次在推荐第一位，首位提及占比 =（6+3）÷14×100%≈64.3%</p>
+                    `
+                },
+                'core-area-rate': {
+                    title: '核心区域占比',
+                    content: `
+                        <p><strong>算法公式：</strong>核心区域占比 =（核心区域提及品牌的次数 ÷ 品牌总提及次数）× 100%</p>
+                        <p><strong>应用价值：</strong>核心区域为回复"关键信息区"，占比越高说明品牌信息被大模型认定为核心结论，传递效率更强</p>
+                        <p><strong>示例：</strong>百事可乐总提及 14 次，5 次在加粗部分、2 次在结论段，核心区域占比 =（5+2）÷14×100%=50%</p>
+                    `
+                },
+                'mention-strength': {
+                    title: '提及关联强度（各类型占比）',
+                    content: `
+                        <p><strong>算法公式：</strong>各关联强度占比 =（对应关联类型的提及次数 ÷ 品牌总提及次数）× 100%</p>
+                        <p><strong>应用价值：</strong>避免"泛提及"导致的曝光价值虚高，判断大模型是否将品牌与核心词深度绑定，指导核心卖点强化方向</p>
+                        <p><strong>示例：</strong>百事可乐总提及 14 次，强关联 8 次、中关联 4 次、弱关联 2 次，强关联占比 = 8÷14×100%≈57.1%</p>
+                    `
+                },
+                'info-accuracy': {
+                    title: '品牌信息准确性',
+                    content: `
+                        <p><strong>算法公式：</strong>品牌信息准确性 =（无错误提及次数 ÷ 品牌总提及次数）× 100%</p>
+                        <p><strong>应用价值：</strong>发现大模型对品牌的认知偏差，避免错误信息传递影响用户决策，指导权威信源补充（如官网参数页优化）</p>
+                        <p><strong>示例：</strong>百事可乐总提及 14 次，12 次信息与官方一致，2 次错误，准确性 = 12÷14×100%≈85.7%</p>
+                    `
+                },
+                'sentiment-distribution': {
+                    title: '品牌情感倾向分布（各类型占比）',
+                    content: `
+                        <p><strong>算法公式：</strong>各情感倾向占比 =（对应情感类型的提及次数 ÷ 品牌总提及次数）× 100%</p>
+                        <p><strong>应用价值：</strong>评估品牌在大模型中的口碑形象，负向占比过高需紧急处理，正向占比指导口碑强化方向</p>
+                        <p><strong>示例：</strong>百事可乐总提及 14 次，正向 9 次、中性 4 次、负向 1 次，正向占比 = 9÷14×100%≈64.3%，负向占比≈7.1%</p>
+                    `
+                },
+                'selling-point-rate': {
+                    title: '核心卖点传递率（单个/总）',
+                    content: `
+                        <p><strong>算法公式：</strong></p>
+                        <p>单个卖点传递率 =（提及该卖点的次数 ÷ 品牌总提及次数）× 100%</p>
+                        <p>总传递率 =（提及卖点总数 ÷ 卖点总数 × 总提及次数）×100%</p>
+                        <p><strong>应用价值：</strong>识别核心价值是否被大模型有效传递，未覆盖的卖点需重点优化内容（如补充卖点相关权威报告）</p>
+                        <p><strong>示例：</strong>百事可乐核心卖点 3 个（0 糖、0 卡路里、便携装），总提及 14 次，提及"0 糖"7 次、"0 卡路里"5 次、"便携装"2 次，0 糖传递率 = 50%，总传递率 =（7+5+2）÷（3×14）×100%≈28.6%</p>
+                    `
+                },
+                'competitor-mention-rate': {
+                    title: '竞品提及关联率',
+                    content: `
+                        <p><strong>算法公式：</strong>竞品提及关联率 =（同时提及品牌与竞品的回复数 ÷ 提及品牌的回复数）× 100%</p>
+                        <p><strong>应用价值：</strong>反映品牌在大模型中的"竞争场景浓度"，关联率高说明品牌常处于用户决策对比中，需强化差异化优势</p>
+                        <p><strong>示例：</strong>提及百事可乐的回复 14 条，9 条同时提及竞品，关联率 = 9÷14×100%≈64.3%</p>
+                    `
+                },
+                'advantage-ratio': {
+                    title: '品牌-竞品优势提及比',
+                    content: `
+                        <p><strong>算法公式：</strong>品牌-竞品优势提及比 = 品牌优势提及次数 ÷ 竞品优势提及次数（保留 1 位小数）</p>
+                        <p><strong>应用价值：</strong>量化品牌在竞争中的相对优势，比值＞1 说明品牌优势更突出，＜1 需补充差异化卖点内容</p>
+                        <p><strong>示例：</strong>同时提及百事可乐与竞品的 9 条回复中，百事可乐优势提及 6 次，竞品优势提及 4 次，优势提及比 = 6÷4=1.5</p>
+                    `
+                },
+                'negative-linkage-rate': {
+                    title: '竞品负面提及联动率',
+                    content: `
+                        <p><strong>算法公式：</strong>竞品负面提及联动率 =（提及品牌时同时提及竞品负面的回复数 ÷ 同时提及品牌与竞品的回复数）× 100%</p>
+                        <p><strong>应用价值：</strong>反映品牌在对比场景中的"口碑相对优势"，联动率高说明品牌在大模型中被赋予"对比优势标签"，需强化该类内容</p>
+                        <p><strong>示例：</strong>同时提及百事可乐与竞品的 9 条回复中，3 条提及百事可乐时提到竞品负面，联动率 = 3÷9×100%≈33.3%</p>
+                    `
+                },
+                'mind-occupancy-rate': {
+                    title: '品牌心智占领率',
+                    content: `
+                        <p><strong>算法公式：</strong>品牌心智占领率 =（推荐品牌为首选的有效回复数 ÷ 总有效回复数）× 100%</p>
+                        <p><strong>应用价值：</strong>直接反映品牌在用户决策中的优先级，是 GEO 优化的核心目标，比提及率更能体现"心智占领效果"</p>
+                        <p><strong>示例：</strong>总有效回复 18 条，7 条明确推荐"首选百事可乐无糖款"，心智占领率 = 7÷18×100%≈38.9%</p>
+                    `
+                },
+                'source-authority-score': {
+                    title: '信源权威性评分',
+                    content: `
+                        <p><strong>算法公式：</strong>信源权威性评分 =（各提及信源得分总和 ÷ 品牌总提及次数）（保留 1 位小数）</p>
+                        <p><strong>评分标准：</strong>官网/权威媒体 10 分、第三方测评 8 分、用户 UGC 5 分、无信源 3 分</p>
+                        <p><strong>应用价值：</strong>反映品牌内容的权威背书强度，得分低说明权威信源布局不足，需补充官媒报道、行业报告等高质量内容</p>
+                        <p><strong>示例：</strong>百事可乐总提及 14 次，官网 3 次、权威媒体 2 次、第三方测评 4 次、UGC 3 次、无信源 2 次，总得分 = 3×10+2×10+4×8+3×5+2×3=103，平均评分 = 103÷14≈7.4 分</p>
+                    `
+                },
+                'value-match-score': {
+                    title: '问题-回复价值匹配度',
+                    content: `
+                        <p><strong>算法公式：</strong>问题-回复价值匹配度 =（所有有效回复得分总和 ÷ 总有效回复数）（保留 1 位小数）</p>
+                        <p><strong>评分标准：</strong>10 分 = 完全解决、5 分 = 部分解决、0 分 = 未解决</p>
+                        <p><strong>应用价值：</strong>匹配度低说明品牌内容未覆盖用户核心需求，指导补充"问题解答类"内容（如 FAQ、教程），提升用户决策价值</p>
+                        <p><strong>示例：</strong>总有效回复 18 条，10 分 5 条、8 分 6 条、5 分 4 条、0 分 3 条，总得分 = 5×10+6×8+4×5+3×0=118，匹配度 = 118÷18≈6.6 分</p>
+                    `
+                }
+            };
+            
+            const detail = metricDetails[metricId];
+            if (detail) {
+                document.getElementById('metric-detail-title').textContent = detail.title;
+                document.getElementById('metric-detail-body').innerHTML = detail.content;
+                document.getElementById('metric-detail-modal').style.display = 'flex';
+            }
+        }
+        
+        function closeMetricDetail(event) {
+            if (!event || event.target.id === 'metric-detail-modal' || event.target.classList.contains('close-btn')) {
+                document.getElementById('metric-detail-modal').style.display = 'none';
+            }
+        }
+        
+        function exportData() {
+            alert('导出功能：将导出当前所有监测维度指标数据（Excel 格式，包含所有指标数值与计算过程）');
+        }
+        
+        function switchView(type) {
+            document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            // 这里可以添加切换视图的逻辑
+        }
+        
+        // 页面加载时确保默认显示品牌提及维度
+        document.addEventListener('DOMContentLoaded', function() {
+            // 确保第一个维度（品牌提及维度）默认显示
+            const mentionCard = document.getElementById('dimension-mention');
+            if (mentionCard) {
+                mentionCard.style.display = 'block';
+            }
+            // 确保其他维度隐藏
+            const contentCard = document.getElementById('dimension-content');
+            const competitionCard = document.getElementById('dimension-competition');
+            const valueCard = document.getElementById('dimension-value');
+            if (contentCard) contentCard.style.display = 'none';
+            if (competitionCard) competitionCard.style.display = 'none';
+            if (valueCard) valueCard.style.display = 'none';
+        });
+    </script>
 </head>
 <body>
     <div class="layout">
@@ -398,7 +644,7 @@
             <div class="top-header">
                 <div class="logo">
                     <span>☁️</span>
-                    <span>品牌GEO优化系统 V2.0</span>
+                    <span>品牌GEO优化系统 V2.01</span>
                 </div>
                 <div class="top-nav">
                     <div class="top-nav-item" onclick="location.href='index.html'">工作台</div>
@@ -424,68 +670,216 @@
             <div class="content-area">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                     <div>
-                        <div class="page-title">百事可乐无糖关键词监测</div>
-                        <div style="font-size: 13px; color: #666; margin-top: 5px;">品牌：百事可乐 | SKU：无糖可乐 | 监测周期：2025-09-01 至 2025-09-30</div>
+                        <div class="page-title">百事可乐无糖问题模型构建分析</div>
+                        <div style="font-size: 13px; color: #666; margin-top: 5px;">品牌：百事可乐 | SKU：无糖可乐 | 分析周期：2025-09-01 至 2025-09-30</div>
                     </div>
                     <div style="display: flex; gap: 10px;">
                         <button class="btn btn-primary" onclick="location.href='strategy-create.html?taskId=1'">创建策略</button>
-                        <button class="btn" style="background: #f8f9fa; color: #666;">导出数据</button>
+                        <button class="btn" style="background: #f8f9fa; color: #666;" onclick="exportData()">导出数据</button>
                     </div>
                 </div>
                 <div style="background: #e7f3ff; padding: 12px 15px; border-radius: 6px; margin-bottom: 16px; font-size: 13px; color: #0066cc;">
                     📌 当前授权范围：品牌【百事可乐】+ SKU【无糖可乐】
                 </div>
 
-                <!-- 测试分析 -->
-                <div class="card">
-                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;">
-                        <div>
-                            <div style="font-size: 16px; font-weight: 600; margin-bottom: 8px;">测试分析</div>
-                            <div>
-                                <span class="chip"><span class="chip-label">关键词</span>牛奶</span>
-                                <span class="chip"><span class="chip-label">目标品牌</span>蒙牛</span>
+                <!-- 维度导航标签 -->
+                <div class="card" style="margin-bottom: 20px;">
+                    <div class="tab-buttons" style="justify-content: center; padding: 10px 0;">
+                        <button class="tab-button active" data-dimension="mention" onclick="filterMetrics('mention')">品牌提及维度</button>
+                        <button class="tab-button" data-dimension="content" onclick="filterMetrics('content')">内容解析维度</button>
+                        <button class="tab-button" data-dimension="competition" onclick="filterMetrics('competition')">竞争对标维度</button>
+                        <button class="tab-button" data-dimension="value" onclick="filterMetrics('value')">价值评估维度</button>
+                    </div>
+                </div>
+
+                <!-- 监测维度指标展示 -->
+                <!-- 一、品牌提及维度 -->
+                <div class="card" id="dimension-mention">
+                    <div style="margin-bottom: 20px;">
+                        <h2 style="font-size: 18px; font-weight: 600; margin-bottom: 5px;">一、品牌提及维度</h2>
+                        <div style="font-size: 13px; color: #666;">核心基础指标，直接反映品牌在核心词关联场景下的曝光广度</div>
+                    </div>
+                    <div class="metric-grid" id="mention-metrics">
+                        <div class="metric-card light" onclick="showMetricDetail('brand-mention-rate')">
+                            <div class="label">
+                                品牌提及率
+                                <span class="info-help" title="品牌提及率 =（提及目标品牌的有效回复数 ÷ 总有效回复数）× 100%">?</span>
+                            </div>
+                            <div class="value" style="color:#667eea;">77.8%</div>
+                            <div class="trend" style="color:#27ae60;">↑ 环比 +5.2%</div>
+                            <div style="font-size: 11px; color: #999; margin-top: 5px;">有效回复 18 个，提及 14 次</div>
+                        </div>
+                        <div class="metric-card light" onclick="showMetricDetail('keyword-mention-rate')">
+                            <div class="label">
+                                关键词提及率
+                                <span class="info-help" title="关键词提及率 =（提及目标关键词的有效回复数 ÷ 总有效回复数）× 100%">?</span>
+                            </div>
+                            <div class="value" style="color:#667eea;">88.9%</div>
+                            <div class="trend" style="color:#27ae60;">↑ 环比 +3.8%</div>
+                            <div style="font-size: 11px; color: #999; margin-top: 5px;">有效回复 18 个，提及 16 次</div>
+                        </div>
+                        <div class="metric-card light" onclick="showMetricDetail('first-mention-rate')">
+                            <div class="label">
+                                首位提及占比
+                                <span class="info-help" title="首位提及占比 =（首段/推荐第一位提及品牌的次数 ÷ 品牌总提及次数）× 100%">?</span>
+                            </div>
+                            <div class="value" style="color:#667eea;">64.3%</div>
+                            <div class="trend" style="color:#27ae60;">↑ 环比 +3.1%</div>
+                            <div style="font-size: 11px; color: #999; margin-top: 5px;">首段 6 次，推荐第一位 3 次</div>
+                        </div>
+                        <div class="metric-card light" onclick="showMetricDetail('core-area-rate')">
+                            <div class="label">
+                                核心区域占比
+                                <span class="info-help" title="核心区域占比 =（核心区域提及品牌的次数 ÷ 品牌总提及次数）× 100%">?</span>
+                            </div>
+                            <div class="value" style="color:#667eea;">50.0%</div>
+                            <div class="trend" style="color:#e67e22;">↓ 环比 -2.5%</div>
+                            <div style="font-size: 11px; color: #999; margin-top: 5px;">加粗 5 次，结论段 2 次</div>
+                        </div>
+                        <div class="metric-card light" onclick="showMetricDetail('mention-strength')">
+                            <div class="label">
+                                提及关联强度
+                                <span class="info-help" title="各关联强度占比 =（对应关联类型的提及次数 ÷ 品牌总提及次数）× 100%">?</span>
+                            </div>
+                            <div style="margin-top: 10px;">
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                    <span style="font-size: 12px;">强关联</span>
+                                    <span style="font-weight: 600; color:#27ae60;">57.1%</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                    <span style="font-size: 12px;">中关联</span>
+                                    <span style="font-weight: 600; color:#f39c12;">28.6%</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between;">
+                                    <span style="font-size: 12px;">弱关联</span>
+                                    <span style="font-weight: 600; color:#e74c3c;">14.3%</span>
+                                </div>
                             </div>
                         </div>
-                        <div class="stats-row">
-                            <span>推荐数量<strong>10</strong></span>
-                            <span>询问数<strong>4</strong></span>
-                            <span>结果<strong>20</strong></span>
-                            <button class="btn" style="padding: 6px 12px; font-size: 12px; background:#f8f9fa;">导出页面</button>
-                            <button class="btn" style="padding: 6px 12px; font-size: 12px; background:#f8f9fa;">导出JSON</button>
+                    </div>
+                </div>
+
+                <!-- 二、内容解析维度 -->
+                <div class="card" style="display: none;" id="dimension-content">
+                    <div style="margin-bottom: 20px;">
+                        <h2 style="font-size: 18px; font-weight: 600; margin-bottom: 5px;">二、内容解析维度</h2>
+                        <div style="font-size: 13px; color: #666;">评估品牌信息准确性、情感倾向与核心卖点传递效果</div>
+                    </div>
+                    <div class="metric-grid">
+                        <div class="metric-card light" onclick="showMetricDetail('info-accuracy')">
+                            <div class="label">
+                                品牌信息准确性
+                                <span class="info-help" title="品牌信息准确性 =（无错误提及次数 ÷ 品牌总提及次数）× 100%">?</span>
+                            </div>
+                            <div class="value" style="color:#667eea;">85.7%</div>
+                            <div class="trend" style="color:#27ae60;">↑ 环比 +2.3%</div>
+                            <div style="font-size: 11px; color: #999; margin-top: 5px;">正确 12 次，错误 2 次</div>
+                        </div>
+                        <div class="metric-card light" onclick="showMetricDetail('sentiment-distribution')">
+                            <div class="label">
+                                品牌情感倾向分布
+                                <span class="info-help" title="各情感倾向占比 =（对应情感类型的提及次数 ÷ 品牌总提及次数）× 100%">?</span>
+                            </div>
+                            <div style="margin-top: 10px;">
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                    <span style="font-size: 12px;">正向</span>
+                                    <span style="font-weight: 600; color:#27ae60;">64.3%</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                    <span style="font-size: 12px;">中性</span>
+                                    <span style="font-weight: 600; color:#f39c12;">28.6%</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between;">
+                                    <span style="font-size: 12px;">负向</span>
+                                    <span style="font-weight: 600; color:#e74c3c;">7.1%</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="metric-card light" onclick="showMetricDetail('selling-point-rate')">
+                            <div class="label">
+                                核心卖点传递率
+                                <span class="info-help" title="总传递率 =（提及卖点总数 ÷ 卖点总数 × 总提及次数）×100%">?</span>
+                            </div>
+                            <div class="value" style="color:#667eea;">28.6%</div>
+                            <div class="trend" style="color:#e67e22;">↓ 环比 -1.2%</div>
+                            <div style="font-size: 11px; color: #999; margin-top: 5px;">
+                                <div>0 糖: 50.0% | 0 卡路里: 35.7% | 便携装: 14.3%</div>
+                            </div>
                         </div>
                     </div>
-                    <div class="metric-grid" style="margin-bottom: 0;">
-                        <div class="metric-card light">
-                            <div class="label">目标品牌出现率</div>
-                            <div class="value" style="color:#f39c12;">75.0%</div>
+                </div>
+
+                <!-- 三、竞争对标维度 -->
+                <div class="card" style="display: none;" id="dimension-competition">
+                    <div style="margin-bottom: 20px;">
+                        <h2 style="font-size: 18px; font-weight: 600; margin-bottom: 5px;">三、竞争对标维度</h2>
+                        <div style="font-size: 13px; color: #666;">量化品牌在竞争中的相对优势与差异化表现</div>
+                    </div>
+                    <div class="metric-grid">
+                        <div class="metric-card light" onclick="showMetricDetail('competitor-mention-rate')">
+                            <div class="label">
+                                竞品提及关联率
+                                <span class="info-help" title="竞品提及关联率 =（同时提及品牌与竞品的回复数 ÷ 提及品牌的回复数）× 100%">?</span>
+                            </div>
+                            <div class="value" style="color:#667eea;">64.3%</div>
+                            <div class="trend" style="color:#27ae60;">↑ 环比 +4.5%</div>
+                            <div style="font-size: 11px; color: #999; margin-top: 5px;">同时提及 9 次，总提及 14 次</div>
                         </div>
-                        <div class="metric-card light">
-                            <div class="label">最佳排名</div>
-                            <div class="value" style="color:#27ae60;">#1</div>
+                        <div class="metric-card light" onclick="showMetricDetail('advantage-ratio')">
+                            <div class="label">
+                                品牌-竞品优势提及比
+                                <span class="info-help" title="品牌-竞品优势提及比 = 品牌优势提及次数 ÷ 竞品优势提及次数">?</span>
+                            </div>
+                            <div class="value" style="color:#27ae60;">1.5</div>
+                            <div class="trend" style="color:#27ae60;">↑ 环比 +0.2</div>
+                            <div style="font-size: 11px; color: #999; margin-top: 5px;">品牌优势 6 次，竞品优势 4 次</div>
                         </div>
-                        <div class="metric-card light">
-                            <div class="label">目标品牌平均排名</div>
-                            <div class="value">3.9</div>
-                        </div>
-                        <div class="metric-card light">
-                            <div class="label">排名相关性</div>
-                            <div class="value">-0.129</div>
-                        </div>
-                        <div class="metric-card light">
-                            <div class="label">Top 3 平均分</div>
-                            <div class="value">15.2</div>
-                        </div>
-                        <div class="metric-card light">
-                            <div class="label">Top 10 平均分</div>
-                            <div class="value">10.1</div>
-                        </div>
-                        <div class="metric-card light">
-                            <div class="label">排名一致性</div>
-                            <div class="value" style="color:#e67e22;">2.14</div>
+                        <div class="metric-card light" onclick="showMetricDetail('negative-linkage-rate')">
+                            <div class="label">
+                                竞品负面提及联动率
+                                <span class="info-help" title="竞品负面提及联动率 =（提及品牌时同时提及竞品负面的回复数 ÷ 同时提及品牌与竞品的回复数）× 100%">?</span>
+                            </div>
+                            <div class="value" style="color:#667eea;">33.3%</div>
+                            <div class="trend" style="color:#e67e22;">↓ 环比 -2.1%</div>
+                            <div style="font-size: 11px; color: #999; margin-top: 5px;">联动提及 3 次，对比回复 9 次</div>
                         </div>
                     </div>
-                    <div style="margin-top: 12px; font-size: 12px; color: #666;">
-                        排名与匹配度呈现弱负相关，排名与匹配度存在一定关联。前三名品牌平均匹配度为 15.2，建议优化。
+                </div>
+
+                <!-- 四、价值评估维度 -->
+                <div class="card" style="display: none;" id="dimension-value">
+                    <div style="margin-bottom: 20px;">
+                        <h2 style="font-size: 18px; font-weight: 600; margin-bottom: 5px;">四、价值评估维度</h2>
+                        <div style="font-size: 13px; color: #666;">直接反映品牌在用户决策中的优先级与内容价值</div>
+                    </div>
+                    <div class="metric-grid">
+                        <div class="metric-card light" onclick="showMetricDetail('mind-occupancy-rate')">
+                            <div class="label">
+                                品牌心智占领率
+                                <span class="info-help" title="品牌心智占领率 =（推荐品牌为首选的有效回复数 ÷ 总有效回复数）× 100%">?</span>
+                            </div>
+                            <div class="value" style="color:#667eea;">38.9%</div>
+                            <div class="trend" style="color:#27ae60;">↑ 环比 +3.5%</div>
+                            <div style="font-size: 11px; color: #999; margin-top: 5px;">首选推荐 7 次，总回复 18 次</div>
+                        </div>
+                        <div class="metric-card light" onclick="showMetricDetail('source-authority-score')">
+                            <div class="label">
+                                信源权威性评分
+                                <span class="info-help" title="信源权威性评分 =（各提及信源得分总和 ÷ 品牌总提及次数）">?</span>
+                            </div>
+                            <div class="value" style="color:#667eea;">7.4</div>
+                            <div class="trend" style="color:#27ae60;">↑ 环比 +0.3</div>
+                            <div style="font-size: 11px; color: #999; margin-top: 5px;">满分 10 分，总得分 103</div>
+                        </div>
+                        <div class="metric-card light" onclick="showMetricDetail('value-match-score')">
+                            <div class="label">
+                                问题-回复价值匹配度
+                                <span class="info-help" title="问题-回复价值匹配度 =（所有有效回复得分总和 ÷ 总有效回复数）">?</span>
+                            </div>
+                            <div class="value" style="color:#667eea;">6.6</div>
+                            <div class="trend" style="color:#e67e22;">↓ 环比 -0.2</div>
+                            <div style="font-size: 11px; color: #999; margin-top: 5px;">满分 10 分，总得分 118</div>
+                        </div>
                     </div>
                 </div>
 
@@ -497,8 +891,8 @@
                             <div style="font-size: 12px; color: #666;">按照模型维度查看不同大模型下目标品牌的排名表现。</div>
                         </div>
                         <div class="tab-buttons">
-                            <button class="tab-button active">按模型分组</button>
-                            <button class="tab-button">按问题分组</button>
+                            <button class="tab-button active" onclick="switchView('model')">按模型分组</button>
+                            <button class="tab-button" onclick="switchView('question')">按问题分组</button>
                         </div>
                     </div>
 

@@ -529,9 +529,15 @@
                         <div class="config-subtitle">填写测试参数，生成多样化询问语句</div>
 
                         <div class="config-form-group">
-                            <div class="config-label">测试关键词<span>*</span></div>
-                            <input class="config-input" type="text" value="脑白金" placeholder="请输入测试关键词">
-                            <div class="config-help">支持多个关键词，用逗号分隔；当前已输入 1 个关键词</div>
+                            <div class="config-label">问题关键词<span>*</span></div>
+                            <input class="config-input" type="text" value="脑白金" placeholder="请输入问题关键词">
+                            <div class="config-help">用于生成询问语句；支持多个关键词，用逗号分隔；当前已输入 1 个关键词</div>
+                        </div>
+
+                        <div class="config-form-group">
+                            <div class="config-label">目标关键词<span>*</span></div>
+                            <input class="config-input" type="text" placeholder="请输入目标关键词">
+                            <div class="config-help">用于数据分析统计（统计目标品牌/产品在AI回答中的表现）；支持多个关键词，用逗号分隔</div>
                         </div>
 
                         <div class="config-number-row">
@@ -556,9 +562,9 @@
                         </div>
 
                         <div class="config-form-group">
-                            <div class="config-label">相关品牌（可选）</div>
+                            <div class="config-label">品牌关键词</div>
                             <input class="config-input" type="text" placeholder="多个品牌用逗号分隔，例如：汤臣倍健, 养生堂">
-                            <div class="config-help">用于品牌匹配度评分分析；当前已输入 0 个品牌</div>
+                            <div class="config-help">用于数据分析统计（统计竞品品牌在AI回答中的提及情况，进行竞争对比分析）；当前已输入 0 个品牌</div>
                         </div>
 
                         <button class="btn-generate">生成询问语句</button>
