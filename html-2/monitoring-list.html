@@ -228,6 +228,60 @@
             background: white;
         }
     </style>
+    <script>
+        function rerunTask(taskId) {
+            if (confirm('确定要重新运行此监测任务吗？任务将重新启动，监测时间将更新为当前时间。')) {
+                // 调用后端接口重新运行任务
+                // 这里使用模拟代码，实际应该调用真实的API
+                console.log('重新运行任务 ID:', taskId);
+                
+                // 模拟API调用
+                // fetch('/api/monitoring/rerun', {
+                //     method: 'POST',
+                //     headers: {
+                //         'Content-Type': 'application/json',
+                //     },
+                //     body: JSON.stringify({ taskId: taskId })
+                // })
+                // .then(response => response.json())
+                // .then(data => {
+                //     if (data.success) {
+                //         alert('任务已重新启动，监测时间已更新');
+                //         location.reload(); // 刷新页面以更新监测时间
+                //     } else {
+                //         alert('重新运行失败：' + data.message);
+                //     }
+                // })
+                // .catch(error => {
+                //     console.error('Error:', error);
+                //     alert('重新运行失败，请稍后重试');
+                // });
+                
+                // 临时模拟：直接更新页面上的监测时间
+                const now = new Date();
+                const timeString = now.getFullYear() + '-' + 
+                    String(now.getMonth() + 1).padStart(2, '0') + '-' + 
+                    String(now.getDate()).padStart(2, '0') + ' ' + 
+                    String(now.getHours()).padStart(2, '0') + ':' + 
+                    String(now.getMinutes()).padStart(2, '0') + ':' + 
+                    String(now.getSeconds()).padStart(2, '0');
+                
+                // 找到对应的行并更新监测时间
+                const rows = document.querySelectorAll('.table tbody tr');
+                rows.forEach(row => {
+                    const viewLink = row.querySelector('a[href*="monitoring-detail"]');
+                    if (viewLink && viewLink.textContent.includes('任务')) {
+                        const timeCell = row.cells[5]; // 监测时间列（索引从0开始）
+                        if (timeCell) {
+                            timeCell.textContent = timeString;
+                        }
+                    }
+                });
+                
+                alert('任务已重新启动，监测时间已更新为：' + timeString);
+            }
+        }
+    </script>
 </head>
 <body>
     <div class="layout">
@@ -283,7 +337,7 @@
                     </div>
                 </div>
             </div>
-                <div class="content-area">
+            <div class="content-area">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                     <div class="page-title">监测任务列表</div>
                     <button class="btn btn-primary" onclick="location.href='monitoring-create.html'">+ 创建任务</button>
@@ -329,7 +383,7 @@
                                 <th>品牌</th>
                                 <th>SKU</th>
                                 <th>核心词数量</th>
-                                <th>监测周期</th>
+                                <th>监测时间</th>
                                 <th>品牌提及率</th>
                                 <th>状态</th>
                                 <th>操作</th>
@@ -342,14 +396,14 @@
                                 <td>百事可乐</td>
                                 <td>无糖可乐</td>
                                 <td>15个</td>
-                                <td>2025-09-01 至 2025-09-30</td>
+                                <td>2025-09-15 14:30:25</td>
                                 <td><span style="font-weight: 600; color: #28a745;">25.3%</span> <span style="font-size: 12px; color: #999;">环比 +5%</span></td>
                                 <td><span class="status-badge status-running">监测中</span></td>
                                 <td>
                                     <div style="display: flex; flex-wrap: wrap; gap: 8px;">
                                         <a href="monitoring-detail.html" style="color: #667eea; text-decoration: none; font-size: 13px;">查看</a>
+                                        <a href="#" onclick="rerunTask(1); return false;" style="color: #667eea; text-decoration: none; font-size: 13px;">再运行</a>
                                         <a href="strategy-create.html?taskId=1" style="color: #667eea; text-decoration: none; font-size: 13px;">创建策略</a>
-                                        <a href="realtime-analysis.html" style="color: #667eea; text-decoration: none; font-size: 13px;">实时分析</a>
                                         <a href="#" style="color: #667eea; text-decoration: none; font-size: 13px;">导出</a>
                                     </div>
                                 </td>
@@ -360,14 +414,13 @@
                                 <td>百事可乐</td>
                                 <td>碳酸饮料</td>
                                 <td>32个</td>
-                                <td>2025-08-01 至 2025-08-31</td>
+                                <td>2025-08-20 10:15:42</td>
                                 <td><span style="font-weight: 600; color: #28a745;">28.5%</span> <span style="font-size: 12px; color: #999;">环比 +3%</span></td>
                                 <td><span class="status-badge status-completed">已完成</span></td>
                                 <td>
                                     <div style="display: flex; flex-wrap: wrap; gap: 8px;">
                                         <a href="monitoring-detail.html" style="color: #667eea; text-decoration: none; font-size: 13px;">查看</a>
-                                        <a href="#" style="color: #667eea; text-decoration: none; font-size: 13px;">重新监测</a>
-                                        <a href="realtime-analysis.html" style="color: #667eea; text-decoration: none; font-size: 13px;">实时分析</a>
+                                        <a href="#" onclick="rerunTask(2); return false;" style="color: #667eea; text-decoration: none; font-size: 13px;">再运行</a>
                                         <a href="#" style="color: #667eea; text-decoration: none; font-size: 13px;">导出</a>
                                     </div>
                                 </td>
@@ -379,14 +432,13 @@
                                 <td>星巴克</td>
                                 <td>冷萃咖啡</td>
                                 <td>18个</td>
-                                <td>2025-06-15 至 2025-07-15</td>
+                                <td>2025-07-10 16:45:18</td>
                                 <td><span style="font-weight: 600; color: #c62828;">18.2%</span> <span style="font-size: 12px; color: #999;">环比 -4%</span></td>
                                 <td><span class="status-badge status-expired">已过期</span></td>
                                 <td>
                                     <div style="display: flex; flex-wrap: wrap; gap: 8px;">
                                         <a href="monitoring-detail.html" style="color: #667eea; text-decoration: none; font-size: 13px;">查看</a>
-                                        <a href="#" style="color: #667eea; text-decoration: none; font-size: 13px;">重新监测</a>
-                                        <a href="realtime-analysis.html" style="color: #667eea; text-decoration: none; font-size: 13px;">实时分析</a>
+                                        <a href="#" onclick="rerunTask(3); return false;" style="color: #667eea; text-decoration: none; font-size: 13px;">再运行</a>
                                         <a href="#" style="color: #667eea; text-decoration: none; font-size: 13px;">导出</a>
                                     </div>
                                 </td>

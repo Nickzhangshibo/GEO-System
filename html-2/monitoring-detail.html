@@ -402,6 +402,171 @@
             cursor: pointer;
             color: #999;
         }
+        .answer-modal, .reference-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1001;
+            align-items: center;
+            justify-content: center;
+        }
+        .answer-modal-content, .reference-modal-content {
+            background: white;
+            border-radius: 8px;
+            padding: 0;
+            max-width: 800px;
+            max-height: 85vh;
+            overflow-y: auto;
+            position: relative;
+            width: 90%;
+        }
+        .modal-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .modal-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+        }
+        .modal-close {
+            font-size: 24px;
+            cursor: pointer;
+            color: #999;
+            line-height: 1;
+        }
+        .modal-close:hover {
+            color: #333;
+        }
+        .modal-body {
+            padding: 24px;
+        }
+        .modal-field {
+            margin-bottom: 20px;
+        }
+        .modal-field-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #666;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .modal-field-label .icon {
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: #f0f4ff;
+            color: #2d6cdf;
+            font-size: 12px;
+        }
+        .modal-field-value {
+            font-size: 14px;
+            color: #333;
+            line-height: 1.6;
+        }
+        .answer-content {
+            background: #f8f9fa;
+            padding: 16px;
+            border-radius: 6px;
+            line-height: 1.8;
+        }
+        .answer-content ol, .answer-content ul {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+        .answer-content li {
+            margin-bottom: 12px;
+        }
+        .answer-content strong {
+            color: #333;
+        }
+        .reference-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .reference-item {
+            padding: 16px;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+        .reference-item:last-child {
+            border-bottom: none;
+        }
+        .reference-number {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #f0f0f0;
+            color: #666;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+        .reference-content {
+            flex: 1;
+        }
+        .reference-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 6px;
+            line-height: 1.4;
+        }
+        .reference-snippet {
+            font-size: 13px;
+            color: #666;
+            line-height: 1.5;
+            margin-bottom: 8px;
+        }
+        .reference-source {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: #999;
+        }
+        .reference-source-icon {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #e0e0e0;
+        }
+        .modal-footer {
+            padding: 16px 24px;
+            border-top: 1px solid #e9ecef;
+            display: flex;
+            justify-content: flex-end;
+        }
+        .btn-close-modal {
+            padding: 8px 20px;
+            background: #2d6cdf;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        .btn-close-modal:hover {
+            background: #1e5bbf;
+        }
     </style>
     <script>
         function filterMetrics(dimension) {
@@ -611,6 +776,163 @@
             if (competitionCard) competitionCard.style.display = 'none';
             if (valueCard) valueCard.style.display = 'none';
         });
+        
+        function showAnswerModal(model, question) {
+            let modal = document.getElementById('answer-modal');
+            if (!modal) {
+                const modalHtml = `
+                    <div class="answer-modal" id="answer-modal" onclick="closeAnswerModal(event)">
+                        <div class="answer-modal-content" onclick="event.stopPropagation()">
+                            <div class="modal-header">
+                                <div class="modal-title">查看回答</div>
+                                <span class="modal-close" onclick="closeAnswerModal()">&times;</span>
+                            </div>
+                            <div class="modal-body">
+                                <div class="modal-field">
+                                    <div class="modal-field-label">
+                                        <span class="icon">📁</span>
+                                        <span>模型</span>
+                                    </div>
+                                    <div class="modal-field-value" id="answer-modal-model">${model}</div>
+                                </div>
+                                <div class="modal-field">
+                                    <div class="modal-field-label">
+                                        <span class="icon">❓</span>
+                                        <span>询问语句</span>
+                                    </div>
+                                    <div class="modal-field-value" id="answer-modal-question">${question}</div>
+                                </div>
+                                <div class="modal-field">
+                                    <div class="modal-field-label">
+                                        <span class="icon">💬</span>
+                                        <span>AI回答</span>
+                                    </div>
+                                    <div class="answer-content" id="answer-modal-content">
+                                        <p>以下是10个口感优秀且广受好评的牛奶品牌推荐,涵盖不同类型和风味(排名不分先后):</p>
+                                        <ol>
+                                            <li><strong>伊利经典纯牛奶</strong><br>(中国乳业龙头,口感醇厚,奶香浓郁,适合日常饮用)</li>
+                                            <li><strong>蒙牛特仑苏纯牛奶</strong><br>(高端线产品,蛋白质含量高,口感丝滑,适合追求品质人群)</li>
+                                            <li><strong>光明优倍鲜奶</strong><br>(75°C巴氏杀菌工艺,保留更多活性营养,口感清新自然)</li>
+                                            <li><strong>三元极致纯牛奶</strong><br>(北京本土品牌,口感纯正,营养丰富)</li>
+                                            <li><strong>安佳全脂牛奶</strong><br>(新西兰进口,奶源优质,口感浓郁)</li>
+                                            <li><strong>德运全脂牛奶</strong><br>(澳大利亚进口,口感顺滑,适合制作咖啡)</li>
+                                            <li><strong>完达山纯牛奶</strong><br>(东北品牌,奶源优质,口感醇厚)</li>
+                                            <li><strong>新希望纯牛奶</strong><br>(西南地区知名品牌,口感清新,价格亲民)</li>
+                                            <li><strong>君乐宝纯牛奶</strong><br>(河北品牌,口感纯正,营养均衡)</li>
+                                            <li><strong>现代牧业纯牛奶</strong><br>(现代化牧场,口感新鲜,品质稳定)</li>
+                                        </ol>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button class="btn-close-modal" onclick="closeAnswerModal()">关闭</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                document.body.insertAdjacentHTML('beforeend', modalHtml);
+                modal = document.getElementById('answer-modal');
+            } else {
+                document.getElementById('answer-modal-model').textContent = model;
+                document.getElementById('answer-modal-question').textContent = question;
+            }
+            modal.style.display = 'flex';
+        }
+        
+        function closeAnswerModal(event) {
+            const modal = document.getElementById('answer-modal');
+            if (modal && (!event || event.target.id === 'answer-modal' || event.target.classList.contains('modal-close') || event.target.classList.contains('btn-close-modal'))) {
+                modal.style.display = 'none';
+            }
+        }
+        
+        function showReferenceModal(question) {
+            let modal = document.getElementById('reference-modal');
+            if (!modal) {
+                const modalHtml = `
+                    <div class="reference-modal" id="reference-modal" onclick="closeReferenceModal(event)">
+                        <div class="reference-modal-content" onclick="event.stopPropagation()">
+                            <div class="modal-header">
+                                <div class="modal-title">参考资料</div>
+                                <span class="modal-close" onclick="closeReferenceModal()">&times;</span>
+                            </div>
+                            <div class="modal-body">
+                                <ul class="reference-list" id="reference-list">
+                                    <li class="reference-item">
+                                        <div class="reference-number">1</div>
+                                        <div class="reference-content">
+                                            <div class="reference-title">支付宝怎么拒绝别人转账?支付宝拒绝别人转账的方法-ZOL软件下载</div>
+                                            <div class="reference-snippet">支付宝怎么拒绝别人转账?支付宝拒绝别人转账的方法 2024-02-05 16:54:45 如何拒绝对方在支付宝上的转...</div>
+                                            <div class="reference-source">
+                                                <span class="reference-source-icon"></span>
+                                                <span>中关村在线</span>
+                                            </div>
+                                        </div>
+                                    </li>
+                                    <li class="reference-item">
+                                        <div class="reference-number">2</div>
+                                        <div class="reference-content">
+                                            <div class="reference-title">支付宝怎么拒绝别人转账?转账限额是多少?-未来号</div>
+                                            <div class="reference-snippet">支付宝怎么拒绝别人转账?转账限额是多少? 摆个水果摊 301 阅读 2025-04-02 14:09 在使用支付宝的过程中,...</div>
+                                            <div class="reference-source">
+                                                <span class="reference-source-icon" style="background: #ff6b6b;"></span>
+                                                <span>未来号</span>
+                                            </div>
+                                        </div>
+                                    </li>
+                                    <li class="reference-item">
+                                        <div class="reference-number">3</div>
+                                        <div class="reference-content">
+                                            <div class="reference-title">支付宝怎么设置不让别人转账?-支付宝设置不让别人转账的步骤_华军软件园</div>
+                                            <div class="reference-snippet">支付宝怎么设置不让别人转账?-支付宝设置不让别人转账的步骤时间:2024-04-05 来源:华军软件教程 作...</div>
+                                            <div class="reference-source">
+                                                <span class="reference-source-icon" style="background: #4dabf7;"></span>
+                                                <span>华军软件园</span>
+                                            </div>
+                                        </div>
+                                    </li>
+                                    <li class="reference-item">
+                                        <div class="reference-number">4</div>
+                                        <div class="reference-content">
+                                            <div class="reference-title">支付宝设置不接受陌生人转账</div>
+                                            <div class="reference-snippet">支付宝设置不接受陌生人转账 AI知识君 根据全网内容智能分析,为你整理以下内容: 在支付宝中设置不接受陌...</div>
+                                            <div class="reference-source">
+                                                <span class="reference-source-icon" style="background: #4dabf7;"></span>
+                                                <span>夸克</span>
+                                            </div>
+                                        </div>
+                                    </li>
+                                    <li class="reference-item">
+                                        <div class="reference-number">5</div>
+                                        <div class="reference-content">
+                                            <div class="reference-title">支付宝怎么设置禁止转账-IT科技-科普经验站</div>
+                                            <div class="reference-snippet">支付宝怎么设置禁止转账时间:2025-11-26 19:31:53科 普经验站 支付宝禁止转账,可以关闭向我转账的方式,...</div>
+                                            <div class="reference-source">
+                                                <span class="reference-source-icon" style="background: #4dabf7;"></span>
+                                                <span>科普经验站</span>
+                                            </div>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="modal-footer">
+                                <button class="btn-close-modal" onclick="closeReferenceModal()">关闭</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                document.body.insertAdjacentHTML('beforeend', modalHtml);
+                modal = document.getElementById('reference-modal');
+            }
+            modal.style.display = 'flex';
+        }
+        
+        function closeReferenceModal(event) {
+            const modal = document.getElementById('reference-modal');
+            if (modal && (!event || event.target.id === 'reference-modal' || event.target.classList.contains('modal-close') || event.target.classList.contains('btn-close-modal'))) {
+                modal.style.display = 'none';
+            }
+        }
     </script>
 </head>
 <body>
@@ -932,7 +1254,12 @@
                                         <span class="tag tag-gray">#4 三元</span>
                                         <span class="tag tag-gray">...</span>
                                     </td>
-                                    <td><a class="link" href="#">查看回答</a></td>
+                                    <td>
+                                        <div style="display: flex; gap: 8px;">
+                                            <a class="link" href="#" onclick="showAnswerModal('baidu/ERNIE-4.5-300B-A47B', '牛奶和豆奶哪个更健康'); return false;">查看回答</a>
+                                            <a class="link" href="#" onclick="showReferenceModal('牛奶和豆奶哪个更健康'); return false;">查看资料</a>
+                                        </div>
+                                    </td>
                                 </tr>
                                 <tr>
                                     <td>推荐一款适合宝宝喝的牛奶</td>
@@ -946,7 +1273,12 @@
                                         <span class="tag tag-gray">#4 光明</span>
                                         <span class="tag tag-gray">...</span>
                                     </td>
-                                    <td><a class="link" href="#">查看回答</a></td>
+                                    <td>
+                                        <div style="display: flex; gap: 8px;">
+                                            <a class="link" href="#" onclick="showAnswerModal('baidu/ERNIE-4.5-300B-A47B', '推荐一款适合宝宝喝的牛奶'); return false;">查看回答</a>
+                                            <a class="link" href="#" onclick="showReferenceModal('推荐一款适合宝宝喝的牛奶'); return false;">查看资料</a>
+                                        </div>
+                                    </td>
                                 </tr>
                             </tbody>
                         </table>
