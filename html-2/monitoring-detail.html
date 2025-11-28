@@ -755,10 +755,15 @@
             alert('导出功能：将导出当前所有监测维度指标数据（Excel 格式，包含所有指标数值与计算过程）');
         }
         
-        function switchView(type) {
-            document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+        function switchView(type, source) {
+            // 根据数据源选择对应的按钮组
+            const card = event.target.closest('.card');
+            const buttons = card.querySelectorAll('.tab-button');
+            buttons.forEach(btn => btn.classList.remove('active'));
             event.target.classList.add('active');
             // 这里可以添加切换视图的逻辑
+            // type: 'model' 或 'question'
+            // source: 'brand' 或 'target'
         }
         
         // 页面加载时确保默认显示品牌提及维度
@@ -1031,15 +1036,6 @@
                             <div class="trend" style="color:#27ae60;">↑ 环比 +5.2%</div>
                             <div style="font-size: 11px; color: #999; margin-top: 5px;">有效回复 18 个，提及 14 次</div>
                         </div>
-                        <div class="metric-card light" onclick="showMetricDetail('keyword-mention-rate')">
-                            <div class="label">
-                                关键词提及率
-                                <span class="info-help" title="关键词提及率 =（提及目标关键词的有效回复数 ÷ 总有效回复数）× 100%">?</span>
-                            </div>
-                            <div class="value" style="color:#667eea;">88.9%</div>
-                            <div class="trend" style="color:#27ae60;">↑ 环比 +3.8%</div>
-                            <div style="font-size: 11px; color: #999; margin-top: 5px;">有效回复 18 个，提及 16 次</div>
-                        </div>
                         <div class="metric-card light" onclick="showMetricDetail('first-mention-rate')">
                             <div class="label">
                                 首位提及占比
@@ -1088,6 +1084,15 @@
                         <div style="font-size: 13px; color: #666;">评估品牌信息准确性、情感倾向与核心卖点传递效果</div>
                     </div>
                     <div class="metric-grid">
+                        <div class="metric-card light" onclick="showMetricDetail('keyword-mention-rate')">
+                            <div class="label">
+                                关键词提及率
+                                <span class="info-help" title="关键词提及率 =（提及目标关键词的有效回复数 ÷ 总有效回复数）× 100%">?</span>
+                            </div>
+                            <div class="value" style="color:#667eea;">88.9%</div>
+                            <div class="trend" style="color:#27ae60;">↑ 环比 +3.8%</div>
+                            <div style="font-size: 11px; color: #999; margin-top: 5px;">有效回复 18 个，提及 16 次</div>
+                        </div>
                         <div class="metric-card light" onclick="showMetricDetail('info-accuracy')">
                             <div class="label">
                                 品牌信息准确性
@@ -1205,16 +1210,110 @@
                     </div>
                 </div>
 
-                <!-- 问答详解 -->
+                <!-- 品牌关键词详解 -->
                 <div class="card">
                     <div class="analysis-header">
                         <div>
-                            <h3 style="font-size: 16px; margin-bottom: 4px;">问答详解（5 个模型，共 20 条结果）</h3>
-                            <div style="font-size: 12px; color: #666;">按照模型维度查看不同大模型下目标品牌的排名表现。</div>
+                            <h3 style="font-size: 16px; margin-bottom: 4px;">品牌关键词详解（5 个模型，共 20 条结果）</h3>
+                            <div style="font-size: 12px; color: #666;">基于品牌关键词，按照模型维度查看不同大模型下目标品牌的排名表现。</div>
                         </div>
                         <div class="tab-buttons">
-                            <button class="tab-button active" onclick="switchView('model')">按模型分组</button>
-                            <button class="tab-button" onclick="switchView('question')">按问题分组</button>
+                            <button class="tab-button active" onclick="switchView('model', 'brand')">按模型分组</button>
+                            <button class="tab-button" onclick="switchView('question', 'brand')">按问题分组</button>
+                        </div>
+                    </div>
+
+                    <!-- 模型 1 -->
+                    <div class="model-block">
+                        <div class="model-header">
+                            <div class="model-info">
+                                <span class="model-name">baidu/ERNIE-4.5-300B-A47B</span>
+                                <span class="tag tag-gray">4 个查询结果</span>
+                                <span class="tag">平均：8.3</span>
+                                <span class="tag">最佳：#2</span>
+                                <span class="tag tag-gray">品牌数：39</span>
+                            </div>
+                            <a href="#" class="link">收起</a>
+                        </div>
+                        <table class="result-table">
+                            <thead>
+                                <tr>
+                                    <th>询问语句</th>
+                                    <th>目标品牌</th>
+                                    <th>目标排名</th>
+                                    <th>品牌数</th>
+                                    <th>品牌列表</th>
+                                    <th>回答</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>牛奶和豆奶哪个更健康</td>
+                                    <td><span class="brand-badge">✓ 蒙牛</span></td>
+                                    <td>#2</td>
+                                    <td>9</td>
+                                    <td>
+                                        <span class="brand-badge">#1 伊利</span>
+                                        <span class="brand-badge">#2 蒙牛</span>
+                                        <span class="tag tag-gray">#3 光明</span>
+                                        <span class="tag tag-gray">#4 三元</span>
+                                        <span class="tag tag-gray">...</span>
+                                    </td>
+                                    <td>
+                                        <div style="display: flex; gap: 8px;">
+                                            <a class="link" href="#" onclick="showAnswerModal('baidu/ERNIE-4.5-300B-A47B', '牛奶和豆奶哪个更健康'); return false;">查看回答</a>
+                                            <a class="link" href="#" onclick="showReferenceModal('牛奶和豆奶哪个更健康'); return false;">查看资料</a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>推荐一款适合宝宝喝的牛奶</td>
+                                    <td><span class="brand-badge">✓ 蒙牛</span></td>
+                                    <td>#6</td>
+                                    <td>10</td>
+                                    <td>
+                                        <span class="brand-badge">#2 蒙牛</span>
+                                        <span class="tag tag-gray">#1 安佳</span>
+                                        <span class="tag tag-gray">#3 德运</span>
+                                        <span class="tag tag-gray">#4 光明</span>
+                                        <span class="tag tag-gray">...</span>
+                                    </td>
+                                    <td>
+                                        <div style="display: flex; gap: 8px;">
+                                            <a class="link" href="#" onclick="showAnswerModal('baidu/ERNIE-4.5-300B-A47B', '推荐一款适合宝宝喝的牛奶'); return false;">查看回答</a>
+                                            <a class="link" href="#" onclick="showReferenceModal('推荐一款适合宝宝喝的牛奶'); return false;">查看资料</a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- 模型 2 -->
+                    <div class="model-block">
+                        <div class="model-header">
+                            <div class="model-info">
+                                <span class="model-name">deepseek-v3-search</span>
+                                <span class="tag tag-gray">4 个查询结果</span>
+                                <span class="tag">平均：5.0</span>
+                                <span class="tag">最佳：#2</span>
+                                <span class="tag tag-gray">品牌数：43</span>
+                            </div>
+                            <a href="#" class="link">展开</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 目标关键词详解 -->
+                <div class="card">
+                    <div class="analysis-header">
+                        <div>
+                            <h3 style="font-size: 16px; margin-bottom: 4px;">目标关键词详解（5 个模型，共 20 条结果）</h3>
+                            <div style="font-size: 12px; color: #666;">基于目标关键词，按照模型维度查看不同大模型下目标品牌的排名表现。</div>
+                        </div>
+                        <div class="tab-buttons">
+                            <button class="tab-button active" onclick="switchView('model', 'target')">按模型分组</button>
+                            <button class="tab-button" onclick="switchView('question', 'target')">按问题分组</button>
                         </div>
                     </div>
 
